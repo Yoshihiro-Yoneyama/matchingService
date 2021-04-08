@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>既存仕事情報更新</title>
+    <%- include("../../_share/stylesheets.ejs") %>
+    <!-- <link
+      rel="stylesheet"
+      href="/public/source/third_party/bootstrap/css/bootstrap.css"
+    /> -->
+    <link rel="stylesheet" href="/public/source/stylesheets/common.css"/>
+  </head>
+  <body>
+    <%- include("../../_share/navbar.ejs") %>
+    <main class="container">
+      <div class="mt-5 mb-5">
+        <h1 class="mb-4">変更確認</h1>
+        <form>
+          <!---------- url ---------->
+          <div class="form-group row">
+            <label for="url" class="col-sm-2 col-form-label">URL:</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext" id="url" name="url" value="<%= original.url %>"/>
+            </div>
+          </div>
+          <div class="form-group row">
+            <!---------- 仕事名 ---------->
+            <label for="title" class="col-sm-2 col-form-label">仕事名</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext" id="title" name="title" value="<%= original.title %>" />
+            </div>
+          </div>
+          <!---------- 仕事内容 ---------->
+          <div class="form-group row">
+            <label for="job_description" class="col-sm-2 col-form-label"
+              >仕事内容</label
+            >
+            <div class="col-sm-10">
+              <textarea
+                type="text"
+                readonly
+                class="form-control-plaintext"
+                id="job_description"
+                name="job_description"
+                rows="6"
+              ><%= original.job_description %></textarea>
+            </div>
+          </div>
+          <!---------- 契約期間 ---------->
+          <div class="form-group row">
+            <label for="contract_period" class="col-sm-2 col-form-label"
+              >契約期間</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="date"
+                readonly
+                class="form-control-plaintext"
+                id="contract_period"
+                name="contract_period"
+                value="<%= original.contract_period %>"
+              />
+            </div>
+          </div>
+          <!---------- 応募期限 ---------->
+          <div class="form-group row">
+            <label for="post_period" class="col-sm-2 col-form-label"
+              >応募期限</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="date"
+                readonly
+                class="form-control-plaintext"
+                id="post_period"
+                name="post_period"
+                value="<%= original.post_period %>"
+              />
+            </div>
+          </div>
+          <!---------- 勤務地 (DB参照に変える) ---------->
+          <div class="form-group row">
+            <label for="location" class="col-sm-2 col-form-label"
+              >勤務地</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                readonly
+                class="form-control-plaintext"
+                id="location"
+                name="location"
+                value="<%= original.location %>"
+              />
+            </div>
+          </div>
+          <!---------- 勤務形態 ---------->
+          <div class="form-group row">
+            <label for="work_style" class="col-sm-2 col-form-label"
+              >勤務形態</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                readonly
+                class="form-control-plaintext"
+                id="work_style"
+                name="work_style"
+                value="<%= original.work_style %>"
+              />
+            </div>
+          </div>
+          
+          <div class="form-group row">
+            <label for="industry_types" class="col-sm-2 col-form-label"
+              >業種</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                readonly
+                class="form-control-plaintext"
+                id="industry_types"
+                name="industry_types"
+                value="<%= original.industry_types %>"
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <label for="skills" class="col-sm-2 col-form-label"
+              >スキルカテゴリー</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                readonly
+                class="form-control-plaintext"
+                id="skills"
+                name="skills"
+                value="<%= original.skills %>"
+              />
+            </div>
+          </div>
+          <div class="form-group row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-1">
+              <input type="submit" class="btn btn-secondary" data-method="POST" data-action="/account/posts/edit/input" value="戻る" />
+            </div>
+          <div class="col-sm-1">
+            <input type="submit" class="btn btn-primary" data-method="POST" data-action="/account/posts/edit/execute" value="登録" />
+          </div>
+          
+        </form>
+      </div>
+    </main>
+    <%- include( "../../_share/javascripts.ejs" ) %>
+    <script src="/public/source/javascripts/account/posts/about_posts.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+.red {
+  color: #ff0000; }
+
+h1 {
+  color: #ff0000;
+  -webkit-transition: all .3s;
+  transition: all .3s;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex; }
+  h1:hover {
+    -webkit-transform: translateX(50px);
+    transform: translateX(50px);
+    color: aqua; }
+
+/*# sourceMappingURL=sample.css.map */

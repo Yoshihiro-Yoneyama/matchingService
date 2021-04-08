@@ -1,0 +1,22 @@
+<!-- 検索結果をカードスタイルで表示 -->
+<div class="card mt-3 mb-3">
+  <!-- 仕事詳細情報のリンク貼り付け -->
+  <a href="/account/posts/edit/select<%= url %>">
+    <div class="card-body">
+      <!-- 仕事名 -->
+      <h5 class="card-title"><%= title %></h5>
+      <!-- 仕事内容 -->
+      <p class="card-text"><%= job_description %></p>
+      <!-- 削除ボタン -->
+    </div>
+  </a>
+  <form>
+    <input
+      type="submit"
+      class="btn btn-danger ml-3 mb-3"
+      data-method="GET"
+      data-action="/account/posts/delete/confirm<%= url %>"
+      value="削除"
+    />
+  </form>
+</div>

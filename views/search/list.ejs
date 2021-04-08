@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>検索</title>
+  <!-- JavaScriptインポート -->
+  <%- include("../_share/stylesheets.ejs") %>
+
+</head>
+<body>
+  <%- include("../_share/navbar.ejs") %>
+    <main class="container">
+
+      <!----------- 件数表示 ----------->
+      <div class="float-end">
+        <span class="badge bg-secondary">
+          <%= count %> 件
+        </span>
+      </div>
+
+      <!----------- 検索窓 ----------->
+      <form action="/search" class="col-3 form-inline mt-5 mb-5" method="GET">
+        <input placeholder="キーワードを入力してください" class="form-control" type="text" id="" name="searchword"  
+        value="<%= keyword %>" /><!-- 検索ワードが検索ボタンを押した後も残るように -->
+        <span><button class="btn btn-success ml-2 mt-3" type="submit">検索</button></span>
+      </form>
+
+      <!------- 検索結果表示部分 ------->
+      <div class="mt-5 mb-5">
+        <!-- item:item.ejsでの画面情報でとってきた仕事情報
+        list:search.jsから送られてきた仕事総数の情報 -->
+        <!-- for...ofのループ処理がなされている -->
+        <% for ( let item of list) { %>
+          <%- include("./item.ejs", item) %>
+            <% } %>
+      </div>
+
+      <!----------- ページネーション部分 ------------>
+      <nav>
+        <ul class="pagination mb-3">
+          <% for ( i=1; i <=pagination.max; i++ ) { %>
+            <!-- 表示しているページ番号と違うページ番号はリンクを貼る -->
+            <% if (pagination.current !==i) { %>
+              <!-- クエリパラメータとして、キーワードとページ番号を渡している -->
+              <li class="page-item"><a class="page-link" href="/search/?searchword=<%= keyword %>&page=<%= i%>">
+                  <%= i %>
+                </a></li>
+              <!-- 表示しているページ番号と同じ番号は押せないように(disabled)する -->
+              <% } else { %>
+                <li class="page-item active"><span class="page-link disabled">
+                    <%= i %>
+                  </span></li>
+                <% } %>
+                  <% } %>
+        </ul>
+      </nav>
+    </main>
+    <%- include( "../_share/javascripts.ejs" ) %>
+
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TWICE MATCHING</title>
+  <!-- JavaScriptインポート -->
+  <%- include("../../_share/stylesheets.ejs") %>
+    
+</head>
+<body>
+  <%- include("../../_share/navbar.ejs") %>
+  <!-- フォームに"errors","doc"オブジェクトを持ってくる -->
+  <% 
+  var errors = locals.errors || {};
+  var doc = locals.doc || {};
+%>
+    <main class="container">
+      <div class="border-bottom mt-5 mb-5">
+        <h2>下記の募集内容を削除しますか？</h2>
+      </div>
+      <!-- 仕事情報表示 -->
+      <dl class="row mt-5 mb-5">
+        <dt class="col-3">仕事名：</dt>
+        <dd class="col-9"><%= doc.title %></dd>
+        <dt class="col-3">仕事内容：</dt>
+        <dd class="col-9"><%= doc.job_description %></dd>
+        <dt class="col-3">契約期間：</dt>
+        <dd class="col-9"><%= doc.contract_period %></dd>
+        <dt class="col-3">募集期限：</dt>
+        <dd class="col-9"><%= doc.post_period %></dd>
+        <dt class="col-3">勤務地：</dt>
+        <dd class="col-9"><%= doc.location %></dd>
+        <dt class="col-3">勤務形態：</dt>
+        <dd class="col-9"><%= doc.work_style%></dd>
+        <dt class="col-3">業種：</dt>
+        <dd class="col-9"><%= doc.industry_types %></dd>
+        <dt class="col-3">スキルカテゴリー：</dt>
+        <dd class="col-9"><%= doc.skills %></dd>
+      </dl>
+      <form>
+        <div class="form-group row">
+          <!-- urlを非表示で画面に設置し、それをキーとしてDBに格納されている仕事情報を削除しに行く -->
+          <input type="text" hidden class="form-control-plaintext" id="url" name="url" value="<%= doc.url %>"/>
+          <div class="col-sm-2"></div>
+          <div class="col-sm-1">
+            <input type="submit" class="btn btn-secondary" data-method="GET" data-action="/account/posts/edit/search" value="戻る" />
+          </div>
+        <div class="col-sm-1">
+          <input type="submit" class="btn btn-danger" data-method="POST" data-action="/account/posts/delete/execute" value="削除" />
+        </div>
+      </form>
+    </main>
+    <%- include( "../../_share/javascripts.ejs" ) %>
+    <script src="/public/source/javascripts/account/posts/about_posts.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+$red: #ff0000;
+
+.red {
+  color: $red;
+}
+
+h1 {
+  color: #ff0000;
+  transition: all .3s;
+  display: flex;
+
+  &:hover {
+    transform: translateX(50px);
+    color: aqua;
+  }
+}

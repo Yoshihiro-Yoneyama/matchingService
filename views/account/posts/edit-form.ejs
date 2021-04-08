@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>既存仕事情報更新</title>
+    <%- include("../../_share/stylesheets.ejs") %>
+    <link
+      rel="stylesheet"
+      href="/public/source/third_party/bootstrap/css/bootstrap.css"
+    />
+  </head>
+  <body>
+    <%- include("../../_share/navbar.ejs") %>
+    <main class="container">
+      <div class="mt-5 mb-5">
+        <h1 class="mb-4">仕事情報編集</h1>
+        <form>
+          <!-- フォームに"errors","original"オブジェクトを持ってくる -->
+          <% 
+            var errors = locals.errors || {};
+            var doc = locals.doc || {};
+            var original = locals.original || {};
+          %>
+          <% if (locals.errors) { %>
+            <div class="alert alert-danger">
+            <% for ( var key in errors) { %>
+              <div>
+                <i class="fa fa-exclamation-circle fa-fw mr-2"></i><%= errors[key] %>
+              </div>
+            <% } %>
+          </div>
+          <% } %>
+        <!---------- 仕事名 ---------->
+          <div class="form-group row">
+            <label for="title" class="col-sm-2 col-form-label">仕事名</label>
+            <div class="col-sm-10">
+              <input
+                type="text"
+                class="form-control <%= errors.title ? 'is-invalid' : '' %> "
+                id="title"
+                name="title"
+                value="<%= doc.title ? doc.title : original.title %>"
+              />
+            </div>
+          </div>
+        <!---------- 仕事内容 ---------->
+          <div class="form-group row">
+            <label for="job_description" class="col-sm-2 col-form-label"
+              >仕事内容</label
+            >
+            <div class="col-sm-10">
+              <textarea
+                type="text"
+                class="form-control"
+                id="job_description"
+                name="job_description"
+                rows="6"
+              ><%= doc.job_description ? doc.job_description : original.job_description %></textarea>
+            </div>
+          </div>
+        <!---------- 契約期間 ---------->
+          <div class="form-group row">
+            <label for="contract_period" class="col-sm-2 col-form-label"
+              >契約期間</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="date"
+                id="contract_period"
+                name="contract_period"
+                value="<%= doc.contract_period ? doc.contract_period : original.contract_period %>"
+              />
+            </div>
+          </div>
+        <!---------- 応募期限 ---------->
+          <div class="form-group row">
+            <label for="post_period" class="col-sm-2 col-form-label"
+              >応募期限</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="date"
+                id="post_period"
+                name="post_period"
+                value="<%= doc.post_period ? doc.post_period : original.post_period %>"
+              />
+            </div>
+          </div>
+        <!---------- 勤務地 ---------->
+          <div class="form-group row">
+            <label for="location" class="col-sm-2 col-form-label">勤務地</label>
+            <div class="col-sm-10">
+              <select
+                class="dropdown btn btn-outline-secondary"
+                name="location"
+              > 
+                <option value=<%= doc.location ? doc.location : original.location%>>
+                  <%= doc.location ? doc.location : original.location %>
+                </option>
+                <optgroup label="関東">
+                  <option value="茨城">茨城</option>
+                  <option value="群馬">群馬</option>
+                  <option value="栃木">栃木</option>
+                  <option value="東京">東京</option>
+                  <option value="千葉">千葉</option>
+                  <option value="埼玉">埼玉</option>
+                  <option value="神奈川">神奈川</option>
+                </optgroup>
+                <optgroup label="関西">
+                  <option value="三重">三重</option>
+                  <option value="奈良">奈良</option>
+                  <option value="大阪">大阪</option>
+                  <option value="兵庫">兵庫</option>
+                  <option value="京都">京都</option>
+                  <option value="滋賀">滋賀</option>
+                  <option value="和歌山">和歌山</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+        <!---------- 勤務形態 ---------->
+          <div class="form-group row">
+            <label for="work_style" class="col-sm-2 col-form-label"
+              >勤務形態</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                class="form-control"
+                id="work_style"
+                name="work_style"
+                value="<%= doc.work_style ? doc.work_style : original.work_style %>"
+              />
+            </div>
+          </div>
+        <!---------- 業種 ---------->
+          <div class="form-group row">
+            <label for="industry_types" class="col-sm-2 col-form-label"
+              >業種</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                class="form-control"
+                id="industry_types"
+                name="industry_types"
+                value="<%= doc.industry_types ? doc.industry_types : original.industry_types %>"
+              />
+            </div>
+          </div>
+        <!---------- スキルカテゴリー ---------->
+          <div class="form-group row">
+            <label for="skills" class="col-sm-2 col-form-label"
+              >スキルカテゴリー</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                class="form-control"
+                id="skills"
+                name="skills"
+                value="<%= doc.skills ? doc.skills : original.skills %>"
+              />
+            </div>
+          </div>
+          <!---------- 確認ボタン ---------->
+          <div class="form-group row mt-5">
+            <div class="col-sm-2"></div>
+          <div class="col-sm-2">
+            <input type="submit" class="btn btn-secondary" data-method="GET" data-action="/account/posts/edit/search" value="戻る" />
+          </div>
+          <div class="col-sm-8">
+            <input type="submit" class="btn btn-primary" data-method="POST" data-action="/account/posts/edit/confirm" value="確認" />
+          </div>
+          </div>
+        </form>
+      </div>
+    </main>
+    <%- include( "../../_share/javascripts.ejs" ) %>
+    <script src="/public/source/javascripts/account/posts/about_posts.js"></script>
+  </body>
+</html>

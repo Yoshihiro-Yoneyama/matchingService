@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TWICE MATCHING</title>
+  <!-- JavaScriptインポート -->
+  <%- include("../_share/stylesheets.ejs") %>
+    
+</head>
+<body>
+  <%- include("../_share/navbar.ejs") %>
+    <main class="container">
+      <div class="border-bottom mt-5 mb-5">
+        <h1><%= title %></h1>
+      </div>
+      <!-- 仕事情報表示 -->
+      <dl class="row mt-5 mb-5">
+        <dt class="col-3">業務内容：</dt>
+        <dd class="col-9"><%= job_description %></dd>
+        <dt class="col-3">業務期間</dt>
+        <dd class="col-9"><%= contract_period.toLocaleString() %></dd>
+        <dt class="col-3">募集期間</dt>
+        <dd class="col-9"><%= post_period.toLocaleString() %></dd>
+        <dt class="col-3">勤務地</dt>
+        <dd class="col-9"><%= location %></dd>
+        <dt class="col-3">勤務形態</dt>
+        <dd class="col-9"><%= work_style%></dd>
+        <dt class="col-3">業種</dt>
+        <dd class="col-9"><%= industry_types %></dd>
+        <dt class="col-3">スキルカテゴリー</dt>
+        <dd class="col-9"><%= skills %></dd>
+
+      </dl>
+    </main>
+    <%- include( "../_share/javascripts.ejs" ) %>
+
+</body>
+
+</html>

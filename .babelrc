@@ -1,0 +1,4 @@
+{
+  //preset-envをトランスパイラの設定に使用
+  "presets": ["@babel/preset-env"]
+}
