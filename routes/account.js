@@ -112,7 +112,7 @@ router.post("/login", authenticate());
 /*********** ログアウト処理 ***********/
 router.post("/logout", (req, res) => {
   req.logout();
-  res.redirect("/account/login");
+  res.redirect("/account/login.ejs");
 });
 
 /***************************************** 新規仕事情報登録画面 *****************************************/
@@ -176,8 +176,9 @@ router.post("/posts/regist/execute", (req, res) => {
   //データベース接続
   MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
     let db = client.db(DATABASE);
-    //postsにデータを登録
+    //データを登録するコレクションを選択(posts)
     db.collection("posts")
+      //"original"に格納されているデータを登録
       .insertOne(original)
       .then(() => {
         delete req.session._csrf;
@@ -221,7 +222,9 @@ router.get("/posts/edit/search/", (req, res) => {
 
     //検索総件数と仕事情報を配列で格納
     Promise.all([
+      //検索総件数の取得
       db.collection("posts").find(query).count(),
+      //仕事情報の取得
       db
         .collection("posts")
         .find(query)
@@ -230,6 +233,7 @@ router.get("/posts/edit/search/", (req, res) => {
         .limit(MAX_ITEM_PER_PAGE)
         .toArray(),
     ])
+    //DBより取得したデータを"results"に格納
       .then((results) => {
         let data = {
           keyword,
@@ -405,17 +409,7 @@ router.get("/posts/delete/confirm/*", (req, res) => {
   });
 });
 
-/*********** 削除完了画面へのルーティング **********/
-//router.post("/posts/delete/execute", (res, req) => {
-
-//MongoClient.connect(CONNECTION_URL, OPTIONS, ( error, client ) => {
-//let db = client.db(DATABASE);
-//   let url = req.body.url;
-//   console.log(url);
-// });
-//});
-
-/********** 登録確認画面へのルーティング *********/
+/********** 削除完了画面へのルーティング *********/
 router.post("/posts/delete/execute", (req, res) => {
   //csrf対策
   let secret = req.session._csrf;
