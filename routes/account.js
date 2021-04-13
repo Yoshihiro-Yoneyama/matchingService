@@ -112,7 +112,7 @@ router.post("/login", authenticate());
 /*********** ログアウト処理 ***********/
 router.post("/logout", (req, res) => {
   req.logout();
-  res.redirect("/account/login.ejs");
+  res.redirect("/account/login");
 });
 
 /***************************************** 新規仕事情報登録画面 *****************************************/
