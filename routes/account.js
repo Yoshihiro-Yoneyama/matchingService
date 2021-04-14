@@ -115,6 +115,12 @@ router.post("/logout", (req, res) => {
   res.redirect("/account/login");
 });
 
+/*********** 新規アカウント登録 ***********/
+router.get("/regist-account", (req, res) => {
+  res.render("./account/regist-account-form.ejs", { message: req.flash("message")});
+});
+
+
 /***************************************** 新規仕事情報登録画面 *****************************************/
 /*********** 登録画面表示 ***********/
 /* csrf対策(トークン発行) */

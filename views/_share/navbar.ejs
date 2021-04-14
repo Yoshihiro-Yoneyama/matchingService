@@ -17,7 +17,18 @@
       <form method="POST" action="/account/logout" class="d-flex">
         <button class="btn btn-outline-success" type="submit">ログアウト</button>
       </form>
-      <% } %>
+      <% } else { %>
+        <form method="GET" action="/account" class="d-flex">
+          <button class="btn btn-outline-success" type="submit">ログイン</button>
+        </form>
+        <% } %>
+        <div class="ml-1">
+          <% if (!locals.user) { %>
+            <form method="GET" action="/account/regist-account-form" class="d-flex">
+              <button class="btn btn-outline-success" type="submit">新規登録</button>
+            </form>
+          <% } %>
+        </div>
     </div>
   </div>
 </nav>
