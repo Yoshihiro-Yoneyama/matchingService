@@ -1,12 +1,30 @@
 const router = require("express").Router();
 
+//mongooseから新規アカウント登録に必要なライブラリを取得
+const users_db = require("../models");
+const users = users_db.users;
+
 /* 仕事登録関連に必要なモジュール(DB周り) */
 const {
   CONNECTION_URL,
   OPTIONS,
   DATABASE,
 } = require("../config/mongodb.config.js");
+
+//MongoDBインポート
 const MongoClient = require("mongodb").MongoClient;
+
+/* 認証用メールの送信元情報 */
+const config = require("../config/aurh.config.js");
+
+/* 新規アカウントのパスワードハッシュ化用 */
+const hash = require("../lib/security/hash.js");
+
+/* メール認証用URLに追加するトークン */
+const jwt = require("jsonwebtoken");
+
+/* メール送信用モジュール */
+const nodemailer = require("../config/nodevailer.config.js");
 
 /* 仕事情報編集削除用検索ページに必要なモジュール */
 const { MAX_ITEM_PER_PAGE } = require("../config/app.config.js").search;
@@ -41,7 +59,8 @@ let createRegistData = (body) => {
   };
 };
 
-/* 登録画面のバリデーション */
+/* 仕事情報のCURD関連 */
+// 登録画面のバリデーション
 let validateRegistData = (body) => {
   let isValidated = true,
     errors = {};
@@ -68,8 +87,7 @@ let validateRegistData = (body) => {
   //返すエラーがあるか
   return isValidated ? undefined : errors;
 };
-
-/* 更新画面のバリデーション */
+// 更新画面のバリデーション
 let validateEditData = (body) => {
   let isValidated = true,
     errors = {};
@@ -81,6 +99,62 @@ let validateEditData = (body) => {
   }
 
   //返すエラーがあるか
+  return isValidated ? undefined : errors;
+};
+
+/* アカウントのCRUD関連 */
+// 新規登録をするアカウントデータ
+
+/* let newAccountDdata = (body) => {
+  let datetime = new Date();
+  //nameタグを目印に入力データを取りに行く
+  return {
+    username: body.username, //ユーザーネーム
+    email: body.email, //メールアドレス
+    //パスワードについてはハッシュ化
+    password: hash.digest(body.password), //パスワード
+    password_confirm: hash.digest(body.password_confirm), //パスワード確認用
+    published: datetime, //発行日
+    status: "Pending",
+  };
+}; */
+
+// 新規アカウント登録画面でのバリデーション
+let validateAccountData = (body) => {
+  let isValidated = true,
+    errors = {};
+
+  //アカウント名
+  if (!body.username) {
+    isValidated = false;
+    errors.username = "アカウント名が未入力です。";
+  }
+
+  //メールアドレス
+  if (!body.email) {
+    isValidated = false;
+    errors.email = "メールアドレスが未入力です。";
+  }
+
+  //パスワード
+  if (!body.password) {
+    isValidated = false;
+    errors.password = "パスワードが未入力です。";
+  }
+
+  //パスワード(確認用)
+  if (!body.password_confirm) {
+    isValidated = false;
+    errors.password_confirm = "確認用パスワードが未入力です";
+  }
+
+  //パスワードが確認用と一致しているか
+  if (body.password != body.password_confirm) {
+    isValidated = false;
+    errors.password_mismatching = "確認用パスワードが未入力です";
+  }
+
+  //isValidatede == trueの時undefinedを返す
   return isValidated ? undefined : errors;
 };
 
@@ -115,11 +189,118 @@ router.post("/logout", (req, res) => {
   res.redirect("/account/login");
 });
 
-/*********** 新規アカウント登録 ***********/
-router.get("/regist-account", (req, res) => {
-  res.render("./account/regist-account-form.ejs", { message: req.flash("message")});
+/*********** 新規アカウント登録画面へのルーティング ***********/
+router.get("/regist/account-form", (req, res) => {
+  res.render("./account/regist-account-form.ejs");
 });
 
+/*********** 新規アカウント仮登録処理 ***********/
+router.post("/regist/temporary", (req, res) => {
+  //仮登録入力内容のバリデーション
+  let errors = validateAccountData(req.body);
+
+  //入力値をとってくる
+  //let newAccount = newAccountDdata(req.body);
+  let datetime = new Date();
+
+  //mongooseを用いたUser関数のインスタンス化及びデータの格納
+  const newAccount = new users({
+    role: req.body.role,
+    username: req.body.username,
+    email: req.body.email,
+    password: hash.digest(req.body.password), //パスワード
+    password_confirm: hash.digest(req.body.password_confirm), //パスワード確認用
+    published: datetime, //発行日
+  });
+
+  //バリデーションでエラーがあった場合の処理
+  if (errors) {
+    //入力情報と一緒にエラーも返してあげる
+    res.render("./account/regist-account-form.ejs", { errors });
+    return;
+  }
+
+  //メール認証で使用するトークンの生成
+  const token = jwt.sign({ email: newAccount.email }, config.secret);
+
+  //登録アカウント情報に上記のトークンプロパティを追加する
+  newAccount.confirmationCode = token;
+
+  //DB接続
+  /* MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
+    let db = client.db(DATABASE);
+    db.collection("users")
+      //既存のメールアドレスか確認
+      .findOne({email: req.body.email})
+      .then((users) => {
+        //もし既存のメールアドレスであれば、user情報が取得されるため、エラーを表示
+        if(users) {
+          let errors = "そのメールアドレスは既に登録されています。";
+          res.render("./account/regist-account-form.ejs", { errors });
+          return;
+        //メールアドレスが既存のもので無ければユーザーアカウント登録処理
+        }  */
+  /* else {
+          db.collection("users").insertOne(newAccount);
+          //メール認証のためのメール送信
+          nodemailer(
+            newAccount.username,
+            newAccount.email,
+            newAccount.confirmationCode
+          );
+          res.redirect("/account/regist/account");
+        } */
+  /* })
+      .catch((error) => {
+        throw error;
+      })
+      .finally(() => {
+        client.close();
+      });
+  }); */
+  users
+    .findOne({
+      email: req.body.email,
+    })
+    .then((user) => {
+      if (user) {
+        res.render("./account/regist-account-form.ejs", { errors:"そのメールアドレスは既に登録されています。" });
+        return;
+      } else {
+        newAccount.save((error, user) => {
+          nodemailer.sendConfirmationEmail(
+            user.username,
+            user.email,
+            user.confirmationCode
+          );
+          res.redirect("/account/regist/account");
+        });
+      }
+    });
+});
+
+router.get("/regist/account", (req, res) => {
+  res.render("./account/regist-account-complete.ejs");
+});
+
+/*********** メール認証後 ***********/
+router.get("/regist-email/:confirmationCode", (req, res) => {
+  users.findOne({
+    confirmationCode: req.params.confirmationCode,
+  }).then((user) => {
+    console.log(user);
+    if (!user) {
+      let message = "アカウントが見つかりません。";
+      res.render("./account/login.ejs", {message: message});
+      return;
+    }
+    user.status = "Active";
+    user.save();
+  }).catch((error) => {
+    throw error;
+  });
+  res.render("./account/login.ejs",{message:""});
+});
 
 /***************************************** 新規仕事情報登録画面 *****************************************/
 /*********** 登録画面表示 ***********/
@@ -239,7 +420,7 @@ router.get("/posts/edit/search/", (req, res) => {
         .limit(MAX_ITEM_PER_PAGE)
         .toArray(),
     ])
-    //DBより取得したデータを"results"に格納
+      //DBより取得したデータを"results"に格納
       .then((results) => {
         let data = {
           keyword,
