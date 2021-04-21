@@ -102,23 +102,6 @@ let validateEditData = (body) => {
   return isValidated ? undefined : errors;
 };
 
-/* アカウントのCRUD関連 */
-// 新規登録をするアカウントデータ
-
-/* let newAccountDdata = (body) => {
-  let datetime = new Date();
-  //nameタグを目印に入力データを取りに行く
-  return {
-    username: body.username, //ユーザーネーム
-    email: body.email, //メールアドレス
-    //パスワードについてはハッシュ化
-    password: hash.digest(body.password), //パスワード
-    password_confirm: hash.digest(body.password_confirm), //パスワード確認用
-    published: datetime, //発行日
-    status: "Pending",
-  };
-}; */
-
 // 新規アカウント登録画面でのバリデーション
 let validateAccountData = (body) => {
   let isValidated = true,
@@ -127,7 +110,7 @@ let validateAccountData = (body) => {
   //アカウント名
   if (!body.username) {
     isValidated = false;
-    errors.username = "アカウント名が未入力です。";
+    errors.username = "ユーザー名が未入力です。";
   }
 
   //メールアドレス
@@ -151,7 +134,7 @@ let validateAccountData = (body) => {
   //パスワードが確認用と一致しているか
   if (body.password != body.password_confirm) {
     isValidated = false;
-    errors.password_mismatching = "確認用パスワードが未入力です";
+    errors.password_mismatching = "パスワードと確認用パスワードが一致しません";
   }
 
   //isValidatede == trueの時undefinedを返す
@@ -226,38 +209,6 @@ router.post("/regist/temporary", (req, res) => {
   //登録アカウント情報に上記のトークンプロパティを追加する
   newAccount.confirmationCode = token;
 
-  //DB接続
-  /* MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
-    let db = client.db(DATABASE);
-    db.collection("users")
-      //既存のメールアドレスか確認
-      .findOne({email: req.body.email})
-      .then((users) => {
-        //もし既存のメールアドレスであれば、user情報が取得されるため、エラーを表示
-        if(users) {
-          let errors = "そのメールアドレスは既に登録されています。";
-          res.render("./account/regist-account-form.ejs", { errors });
-          return;
-        //メールアドレスが既存のもので無ければユーザーアカウント登録処理
-        }  */
-  /* else {
-          db.collection("users").insertOne(newAccount);
-          //メール認証のためのメール送信
-          nodemailer(
-            newAccount.username,
-            newAccount.email,
-            newAccount.confirmationCode
-          );
-          res.redirect("/account/regist/account");
-        } */
-  /* })
-      .catch((error) => {
-        throw error;
-      })
-      .finally(() => {
-        client.close();
-      });
-  }); */
   users
     .findOne({
       email: req.body.email,
@@ -285,15 +236,19 @@ router.get("/regist/account", (req, res) => {
 
 /*********** メール認証後 ***********/
 router.get("/regist-email/:confirmationCode", (req, res) => {
+
+  //メール送信時に発行したトークンをクエリパラメータから取得して検索をする
   users.findOne({
     confirmationCode: req.params.confirmationCode,
+  //アカウントが取得できればuserに格納する
   }).then((user) => {
-    console.log(user);
+    //もしアカウント情報が取得できなかったらエラー
     if (!user) {
       let message = "アカウントが見つかりません。";
       res.render("./account/login.ejs", {message: message});
       return;
     }
+    //アカウントが取得できればstatus項目をPending→ActiveにしてDBへ格納
     user.status = "Active";
     user.save();
   }).catch((error) => {
