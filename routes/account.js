@@ -106,8 +106,14 @@ let validateEditData = (body) => {
 let validateAccountData = (body) => {
   let isValidated = true,
     errors = {};
+  // let password_validated = new RegExp("^[a-z]{8,100}$");
 
   //アカウント名
+  if (!body.role) {
+    isValidated = false;
+    errors.role = "アカウントの種別を選択してください。";
+  }
+
   if (!body.username) {
     isValidated = false;
     errors.username = "ユーザー名が未入力です。";
@@ -128,14 +134,20 @@ let validateAccountData = (body) => {
   //パスワード(確認用)
   if (!body.password_confirm) {
     isValidated = false;
-    errors.password_confirm = "確認用パスワードが未入力です";
+    errors.password_confirm = "確認用パスワードが未入力です。";
   }
 
   //パスワードが確認用と一致しているか
   if (body.password != body.password_confirm) {
     isValidated = false;
-    errors.password_mismatching = "パスワードと確認用パスワードが一致しません";
+    errors.password_mismatching = "パスワードと確認用パスワードが一致しません。";
   }
+
+  
+  /* if (body.password != password_validated) {
+    isValidated = false;
+    errors.password_validated = "パスワードは半角英数字8文字以上で設定してください。";
+  } */
 
   //isValidatede == trueの時undefinedを返す
   return isValidated ? undefined : errors;
@@ -146,7 +158,9 @@ let validateAccountData = (body) => {
 //※認可処理を実装していないとログイン画面に遷移しない
 //読み書き権限があるユーザーのみログイン後のTOP画面を表示できる
 router.get("/", authorize("readWrite"), (req, res) => {
-  res.render("./account/index.ejs"); //isAuthenticatedから飛んでくる所
+
+  //users.findOne({email: email});
+  res.render("./account/index.ejs", req.user); //isAuthenticatedから飛んでくる所
 });
 
 //認可処理がないときは下記を代用
@@ -172,6 +186,7 @@ router.post("/logout", (req, res) => {
   res.redirect("/account/login");
 });
 
+/***************************************** ユーザー登録関連 *****************************************/
 /*********** 新規アカウント登録画面へのルーティング ***********/
 router.get("/regist/account-form", (req, res) => {
   res.render("./account/regist-account-form.ejs");
@@ -209,52 +224,82 @@ router.post("/regist/temporary", (req, res) => {
   //登録アカウント情報に上記のトークンプロパティを追加する
   newAccount.confirmationCode = token;
 
+  //usersコレクションから入力されたメールアドレスと合致するものをがあればユーザー情報を返す
   users
     .findOne({
       email: req.body.email,
     })
+
+    //ユーザー情報(user)が返却されれば既に登録済みのアドレス情報であるためエラーメッセージを返す
     .then((user) => {
       if (user) {
-        res.render("./account/regist-account-form.ejs", { errors:"そのメールアドレスは既に登録されています。" });
+        res.render("./account/regist-account-form.ejs", {
+          message: "そのメールアドレスは既に登録されています。",
+        });
         return;
       } else {
+        //ユーザー情報を仮登録する
         newAccount.save((error, user) => {
+          //登録と同時に仮登録完了メールを送る
           nodemailer.sendConfirmationEmail(
             user.username,
             user.email,
             user.confirmationCode
           );
+
+          //再送信防止用にリダイレクト処理
           res.redirect("/account/regist/account");
         });
       }
     });
 });
 
+//リダイレクト先の画面表示処理
 router.get("/regist/account", (req, res) => {
   res.render("./account/regist-account-complete.ejs");
 });
 
 /*********** メール認証後 ***********/
 router.get("/regist-email/:confirmationCode", (req, res) => {
-
+  let datetime = new Date();
   //メール送信時に発行したトークンをクエリパラメータから取得して検索をする
-  users.findOne({
-    confirmationCode: req.params.confirmationCode,
-  //アカウントが取得できればuserに格納する
-  }).then((user) => {
-    //もしアカウント情報が取得できなかったらエラー
-    if (!user) {
-      let message = "アカウントが見つかりません。";
-      res.render("./account/login.ejs", {message: message});
-      return;
-    }
-    //アカウントが取得できればstatus項目をPending→ActiveにしてDBへ格納
-    user.status = "Active";
-    user.save();
-  }).catch((error) => {
-    throw error;
-  });
-  res.render("./account/login.ejs",{message:""});
+  users
+    .findOne({
+      confirmationCode: req.params.confirmationCode,
+      //アカウントが取得できればuserに格納する
+    })
+    .then((user) => {
+
+      //本登録有効期限（300秒）
+      let limit = user.published.setSeconds(user.published.getSeconds() + 300);
+      //アカウント情報が取得できなかったらエラーを返す
+      if (!user) {
+        let message = "アカウントが見つかりません。";
+        res.render("./account/login.ejs", { message: message });
+
+      }
+      //トークンの有効期限が過ぎたらエラーを返す
+      else if (limit <= datetime) {
+        let message =
+          "登録有効期限切れのアクセスとなります。もう一度初めからアカウント登録をお願いします。";
+        res.render("./account/regist-account-token-error.ejs", {
+          message: message,
+        });
+      }
+
+      //本登録完了の処理
+      else {
+        //アカウントが取得できればstatus項目をPending→Active
+        user.status = "Active";
+        //DBに格納
+        user.save();
+        res.render("./account/login.ejs", { message: "" });
+      }
+    })
+    .catch((error) => {
+      throw error;
+    });
+  
 });
 
 /***************************************** 新規仕事情報登録画面 *****************************************/

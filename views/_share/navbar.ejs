@@ -14,9 +14,13 @@
       </ul>
       <!-- locals.userはサーバーから受け取ったユーザーのログイン情報 -->
       <% if (locals.user) { %>
-      <form method="POST" action="/account/logout" class="d-flex">
+        <form method="GET" action="/account" class="d-flex">
+          <button class="btn btn-outline-success" type="submit">ようこそ<%= locals.user.username %>様</button>
+        </form>
+        <form method="POST" action="/account/logout" class="d-flex ml-1">
         <button class="btn btn-outline-success" type="submit">ログアウト</button>
       </form>
+      
       <% } else { %>
         <form method="GET" action="/account" class="d-flex">
           <button class="btn btn-outline-success" type="submit">ログイン</button>
@@ -28,6 +32,7 @@
               <button class="btn btn-outline-success" type="submit">新規登録</button>
             </form>
           <% } %>
+          
         </div>
     </div>
   </div>

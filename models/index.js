@@ -16,6 +16,8 @@ users_db.mongoose = mongoose;
 
 users_db.users = require("./user.model.js");
 
+users_db.counter = require("./counter.js");
+
 users_db.ROLES = ["admin","client", "worker"];
 
 module.exports = users_db;

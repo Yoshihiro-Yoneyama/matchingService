@@ -31,7 +31,8 @@ module.exports.sendConfirmationEmail = (name, email, confirmationCode) => {
     <h2>${name}様</h2>
     <p>今度は当サービスにご登録いただきありがとうございます。</p>
     <p>現在お客様のアカウントは仮登録の状態でございます。下記のURLにアクセスして頂くことで登録が完了となります。</p>
-    <br/><a href=http://localhost:3000/account/regist-email/${confirmationCode}>こちらをクリック</a>`
+    <p>なおURLの有効期限は5分間となっておりますのでお早めにご登録くださいませ。</p>
+    <br/><a href=http://localhost:3000/account/regist-email/${confirmationCode}>http://localhost:3000/account/regist-email/${confirmationCode}</a>`
   }).catch((error) => {
     throw error;
   });

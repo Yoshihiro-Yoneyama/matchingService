@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>認証エラー</title>
+  <%- include("../_share/stylesheets.ejs") %>
+
+</head>
+
+<body>
+  <%- include("../_share/navbar.ejs") %>
+  <% var test = locals.test %> 
+    <main class="container">
+      <div class="border-bottom mt-5 mb-5">
+        <% if (message) { %>
+          <div class="alert alert-danger">
+            <%= message %>
+          </div>
+          <% } %>
+      </div>
+    </main>
+    <%- include( "../_share/javascripts.ejs" ) %>
+
+</body>
+
+</html>

@@ -15,6 +15,12 @@
   var errors = locals.errors || {};
   var mismatching = errors.password_mismatching || "";
   var username = errors.username || "";
+  var email = errors.email || "";
+  var password = errors.password || "";
+  var password_confirm = errors.password_confirm || "";
+  var role = errors.role || "";
+  var message = locals.message || "";
+  var password_validated = errors.password_validated || "";
   %>
 
     <main class="container">
@@ -22,6 +28,12 @@
         <h1>新規アカウント登録</h1>
       </div>
       <div class="row justify-content-center">
+        <% if (message) { %>
+          <div class="alert alert-danger">
+            <%= message %>
+          </div>
+          <% } %>
+        <!-- パスワードと確認用が不一致の際のエラーメッセージ -->
         <% if (mismatching) { %>
           <div class="alert alert-danger">
             <div>
@@ -30,6 +42,8 @@
         </div>
         <% } %>
         <form method="POST" action="/account/regist/temporary">
+
+          <!-- アカウント種別 -->
           <div class="form-group">
             <label for="role" style="padding-left: 0;" class="col-sm-2 col-form-label">種別：</label>
             <div class="form-check form-check-inline">
@@ -41,12 +55,23 @@
               <label class="form-check-label" for="worker">ワーカー</label>
             </div>
           </div>
+          <!-- 入力チェック -->
+          <% if (role) { %>
+            <div class="alert alert-danger">
+              <div>
+                <i class="fa fa-exclamation-circle fa-fw mr-2"></i><%= role %>
+              </div>
+          </div>
+          <% } %>
+
+          <!-- ユーザー名 -->
           <div class="form-group row">
             <label for="username" class="col-sm-2 col-form-label">ユーザー名：</label>
             <div class="col-sm-10">
-              <input required type="text" id="username" name="username" class="form-control" />
+              <input type="text" id="username" name="username" class="form-control" />
             </div>
           </div>
+          <!-- 入力チェック -->
           <% if (username) { %>
             <div class="alert alert-danger">
               <div>
@@ -54,24 +79,63 @@
               </div>
           </div>
           <% } %>
+
+          <!-- メールドレス -->
           <div class="form-group row">
             <label for="username" class="col-sm-2 col-form-label">メールアドレス：</label>
             <div class="col-sm-10">
-              <input required type="email" id="email" name="email" class="form-control" />
+              <input type="email" id="email" name="email" class="form-control" />
             </div>
           </div>
+          <!-- 入力チェック -->
+          <% if (email) { %>
+            <div class="alert alert-danger">
+              <div>
+                <i class="fa fa-exclamation-circle fa-fw mr-2"></i><%= email %>
+              </div>
+          </div>
+          <% } %>
+
+          <!-- パスワード -->
           <div class="form-group row">
             <label for="password" class="col-sm-2 col-form-label">パスワード：</label>
             <div class="col-sm-10">
-              <input required type="password" id="password" name="password" class="form-control" />
+              <input type="password" id="password" name="password" class="form-control" />
             </div>
           </div>
+          <!-- 入力チェック -->
+          <% if (password) { %>
+            <div class="alert alert-danger">
+              <div>
+                <i class="fa fa-exclamation-circle fa-fw mr-2"></i><%= password %>
+              </div>
+          </div>
+          <% } %>
+          <!-- パスワードと確認用が不一致の際のエラーメッセージ -->
+        <% if (password_validated) { %>
+          <div class="alert alert-danger">
+            <div>
+              <i class="fa fa-exclamation-circle fa-fw mr-2"></i><%= password_validated %>
+            </div>
+        </div>
+        <% } %>
+
+          <!-- パスワード(確認用) -->
           <div class="form-group row">
             <label for="password_confirm" class="col-sm-2 col-form-label">パスワード(確認)：</label>
             <div class="col-sm-10">
-              <input required type="password" id="password_confirm" name="password_confirm" class="form-control" />
+              <input type="password" id="password_confirm" name="password_confirm" class="form-control" />
             </div>
           </div>
+          <!-- 入力チェック -->
+          <% if (password_confirm) { %>
+            <div class="alert alert-danger">
+              <div>
+                <i class="fa fa-exclamation-circle fa-fw mr-2"></i><%= password_confirm %>
+              </div>
+          </div>
+          <% } %>
+
           <div class="form-group row">
             <div class="col-sm-2"></div>
             <div class="col-sm-10">
