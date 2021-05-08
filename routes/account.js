@@ -302,7 +302,7 @@ router.get("/regist-email/:confirmationCode", (req, res) => {
   
 });
 
-/***************************************** 新規仕事情報登録画面 *****************************************/
+/***************************************** 仕事情報のCRUD操作 *****************************************/
 /*********** 登録画面表示 ***********/
 /* csrf対策(トークン発行) */
 router.get("/posts/regist", (req, res) => {
@@ -360,11 +360,14 @@ router.post("/posts/regist/execute", (req, res) => {
     res.render("./account/posts/regist-form.ejs", { errors, original });
     return;
   }
+
+  //リクエストからユーザーIDを取得
+  original.user_id = req.user.user_id;
   //データベース接続
   MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
     let db = client.db(DATABASE);
     //データを登録するコレクションを選択(posts)
-    db.collection("posts")
+    db.collection("jobs")
       //"original"に格納されているデータを登録
       .insertOne(original)
       .then(() => {
@@ -410,10 +413,10 @@ router.get("/posts/edit/search/", (req, res) => {
     //検索総件数と仕事情報を配列で格納
     Promise.all([
       //検索総件数の取得
-      db.collection("posts").find(query).count(),
+      db.collection("jobs").find(query).count(),
       //仕事情報の取得
       db
-        .collection("posts")
+        .collection("jobs")
         .find(query)
         .sort({ post_period: -1 })
         .skip((page - 1) * MAX_ITEM_PER_PAGE)
@@ -449,7 +452,7 @@ router.get("/posts/edit/select/*", (req, res) => {
     let db = client.db(DATABASE);
     //パスパラメータから仕事情報のURLを取得(DBで検索をかけるため)
     let jobPath = req.params["0"];
-    db.collection("posts")
+    db.collection("jobs")
       .findOne({
         url: "/" + jobPath,
       })
@@ -521,7 +524,7 @@ router.post("/posts/edit/execute", (req, res) => {
   //データベース接続
   MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
     let db = client.db(DATABASE);
-    db.collection("posts")
+    db.collection("jobs")
       /* 仕事情報を入力させているものに更新 */
       .updateOne(
         {
@@ -569,7 +572,7 @@ router.get("/posts/delete/confirm/*", (req, res) => {
   MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
     let db = client.db(DATABASE);
     let jobPath = req.params["0"];
-    db.collection("posts")
+    db.collection("jobs")
       .findOne({
         url: "/" + jobPath,
       })
@@ -609,7 +612,7 @@ router.post("/posts/delete/execute", (req, res) => {
   //取得したURLをキーにDBに格納されている仕事情報を削除
   MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
     let db = client.db(DATABASE);
-    db.collection("posts")
+    db.collection("jobs")
       .deleteOne({
         url: url,
       })
