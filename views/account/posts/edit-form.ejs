@@ -32,6 +32,7 @@
             <% } %>
           </div>
           <% } %>
+          <input type="text" hidden class="form-control-plaintext" id="url" name="url" value="<%= doc.url ? doc.url : original.url %>"/>
         <!---------- 仕事名 ---------->
           <div class="form-group row">
             <label for="title" class="col-sm-2 col-form-label">仕事名</label>
@@ -62,29 +63,29 @@
           </div>
         <!---------- 契約期間 ---------->
           <div class="form-group row">
-            <label for="contract_period" class="col-sm-2 col-form-label"
+            <label for="contract_period_from" class="col-sm-2 col-form-label"
               >契約期間</label
             >
             <div class="col-sm-10">
               <input
                 type="date"
-                id="contract_period"
-                name="contract_period"
-                value="<%= doc.contract_period ? doc.contract_period : original.contract_period %>"
+                id="contract_period_from"
+                name="contract_period_from"
+                value="<%= doc.contract_period_from ? doc.contract_period_from : original.contract_period_from %>"
               />
             </div>
           </div>
         <!---------- 応募期限 ---------->
           <div class="form-group row">
-            <label for="post_period" class="col-sm-2 col-form-label"
+            <label for="post_period_from" class="col-sm-2 col-form-label"
               >応募期限</label
             >
             <div class="col-sm-10">
               <input
                 type="date"
-                id="post_period"
-                name="post_period"
-                value="<%= doc.post_period ? doc.post_period : original.post_period %>"
+                id="post_period_from"
+                name="post_period_from"
+                value="<%= doc.post_period_from ? doc.post_period_from : original.post_period_from %>"
               />
             </div>
           </div>

@@ -1,8 +1,9 @@
 const router = require("express").Router();
 
 //mongooseから新規アカウント登録に必要なライブラリを取得
-const users_db = require("../models");
-const users = users_db.users;
+const default_db = require("../models");
+const users = default_db.users;
+const job = default_db.job;
 
 /* 仕事登録関連に必要なモジュール(DB周り) */
 const {
@@ -48,8 +49,8 @@ let createRegistData = (body) => {
     url: body.url, //仕事情報の遷移先url(後で消す)
     title: body.title, //仕事名
     job_description: body.job_description, //仕事内容
-    contract_period: body.contract_period, //契約期間
-    post_period: body.post_period, //応募期間
+    contract_period_from: body.contract_period_from, //契約期間
+    post_period_from: body.post_period_from, //応募期間
     location: body.location, //勤務地
     work_style: body.work_style, //業務形態
     industry_types: body.industry_types, //業種
@@ -140,10 +141,10 @@ let validateAccountData = (body) => {
   //パスワードが確認用と一致しているか
   if (body.password != body.password_confirm) {
     isValidated = false;
-    errors.password_mismatching = "パスワードと確認用パスワードが一致しません。";
+    errors.password_mismatching =
+      "パスワードと確認用パスワードが一致しません。";
   }
 
-  
   /* if (body.password != password_validated) {
     isValidated = false;
     errors.password_validated = "パスワードは半角英数字8文字以上で設定してください。";
@@ -158,7 +159,6 @@ let validateAccountData = (body) => {
 //※認可処理を実装していないとログイン画面に遷移しない
 //読み書き権限があるユーザーのみログイン後のTOP画面を表示できる
 router.get("/", authorize("readWrite"), (req, res) => {
-
   //users.findOne({email: email});
   res.render("./account/index.ejs", req.user); //isAuthenticatedから飛んでくる所
 });
@@ -269,14 +269,12 @@ router.get("/regist-email/:confirmationCode", (req, res) => {
       //アカウントが取得できればuserに格納する
     })
     .then((user) => {
-
       //本登録有効期限（300秒）
       let limit = user.published.setSeconds(user.published.getSeconds() + 300);
       //アカウント情報が取得できなかったらエラーを返す
       if (!user) {
         let message = "アカウントが見つかりません。";
         res.render("./account/login.ejs", { message: message });
-
       }
       //トークンの有効期限が過ぎたらエラーを返す
       else if (limit <= datetime) {
@@ -299,7 +297,6 @@ router.get("/regist-email/:confirmationCode", (req, res) => {
     .catch((error) => {
       throw error;
     });
-  
 });
 
 /***************************************** 仕事情報のCRUD操作 *****************************************/
@@ -360,9 +357,39 @@ router.post("/posts/regist/execute", (req, res) => {
     res.render("./account/posts/regist-form.ejs", { errors, original });
     return;
   }
-
-  //リクエストからユーザーIDを取得
   original.user_id = req.user.user_id;
+
+  //DBに登録時間を格納する用
+  let datetime = new Date();
+
+  //フォームから入力値をとってくる
+  //mongooseを用いたjob関数のインスタンス化及びデータの格納
+  const newAccount = new job({
+    user_id: req.user.user_id,
+    url: req.body.url, //仕事情報の遷移先url(後で消す)
+    title: req.body.title, //仕事名
+    job_description: req.body.job_description, //仕事内容
+    contract_period_from: original.contract_period_from, //契約期間
+    post_period_from: original.post_period_from, //応募期間
+    location: req.body.location, //勤務地
+    work_style: req.body.work_style, //業務形態
+    industry_types: req.body.industry_types, //業種
+    skills: req.body.skills, //スキルカテゴリー
+    update: datetime, //更新日
+    published: datetime, //発行日
+  });
+
+  newAccount.save().then(() => {
+    //csrfトークンの削除
+    delete req.session._csrf;
+    //クッキーの削除
+    res.clearCookie("_csrf");
+    //再送信防止用にリダイレクト処理
+    res.redirect("/account/posts/regist/complete");
+  });
+
+  /* ※mongooseを使わずMongoDBに直接接続する方法(未使用)
+
   //データベース接続
   MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
     let db = client.db(DATABASE);
@@ -383,7 +410,7 @@ router.post("/posts/regist/execute", (req, res) => {
       .finally(() => {
         client.close();
       });
-  });
+  }); */
 });
 
 /*********** (登録完了画面用)再送信防止用のリダイレクト先 ***********/
@@ -418,7 +445,7 @@ router.get("/posts/edit/search/", (req, res) => {
       db
         .collection("jobs")
         .find(query)
-        .sort({ post_period: -1 })
+        .sort({ post_period_from: -1 })
         .skip((page - 1) * MAX_ITEM_PER_PAGE)
         .limit(MAX_ITEM_PER_PAGE)
         .toArray(),
@@ -457,8 +484,9 @@ router.get("/posts/edit/select/*", (req, res) => {
         url: "/" + jobPath,
       })
       .then((doc) => {
-        doc.contract_period = doc.contract_period.toLocaleString();
-        doc.post_period = doc.post_period.toLocaleString();
+        //フォームに表示するためにDate型からString型に直している。
+        doc.contract_period_from ? doc.contract_period_from.toString() : "";
+        doc.post_period_from ? doc.post_period_from.toString() : "";
         //secretを生成(サーバー側で持っておくトークンの照合元)
         tokens.secret((error, secret) => {
           //サーバー側でトークンを発行
@@ -521,11 +549,63 @@ router.post("/posts/edit/execute", (req, res) => {
     res.render("./account/posts/edit-form.ejs", { errors, original });
     return;
   }
-  //データベース接続
+
+  let datetime = new Date();
+
+  //※インスタンス化は更新処理では必要ない
+  /* const updateJob = new job({
+    user_id: req.user.user_id,
+    url: req.body.url, //仕事情報の遷移先url(後で消す)
+    title: req.body.title, //仕事名
+    job_description: req.body.job_description, //仕事内容
+    contract_period_from: req.body.contract_period, //契約期間
+    post_period_from: req.body.post_period_from, //応募期間
+    location: req.body.location, //勤務地
+    work_style: req.body.work_style, //業務形態
+    industry_types: req.body.industry_types, //業種
+    skills: req.body.skills, //スキルカテゴリー
+    update: datetime, //更新日
+  }); */
+
+  //仕事情報更新(※更新処理はインスタンス化しない)
+  job
+    .findOneAndUpdate(
+      {
+        //URLと一致した仕事情報について更新
+        url: original.url,
+      },
+      //更新内容↓
+      {
+        $set: {
+          title: original.title,
+          job_description: original.job_description,
+          contract_period_from: original.contract_period_from,
+          post_period_from: original.post_period_from,
+          location: original.location,
+          work_style: original.work_style,
+          industry_types: original.industry_types,
+          skills: original.skills,
+          update: datetime, //更新日時
+        },
+      },
+      (error) => {
+        if (error) throw error;
+      }
+    )
+    .then(() => {
+      delete req.session._csrf;
+      res.clearCookie("_csrf");
+      //res.render("./account/posts/regist-complete.ejs");→リダイレクト先へ移設
+      //再送信防止のためのリダイレクト
+      res.redirect("/account/posts/edit/complete");
+    });
+});
+
+/*   //MongoDBでの更新処理
   MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
     let db = client.db(DATABASE);
     db.collection("jobs")
-      /* 仕事情報を入力させているものに更新 */
+      //仕事情報を入力させているものに更新
       .updateOne(
         {
           //URLと一致した仕事情報について更新
@@ -537,7 +617,7 @@ router.post("/posts/edit/execute", (req, res) => {
             title: original.title,
             job_description: original.job_description,
             contract_period: original.contract_period,
-            post_period: original.post_period,
+            post_period_from: original.post_period_from,
             location: original.location,
             work_style: original.work_style,
             industry_types: original.industry_types,
@@ -559,7 +639,7 @@ router.post("/posts/edit/execute", (req, res) => {
         client.close();
       });
   });
-});
+}); */
 
 /*********** (更新完了画面用)再送信防止用のリダイレクト先 ***********/
 router.get("/posts/edit/complete", (req, res) => {
@@ -577,8 +657,9 @@ router.get("/posts/delete/confirm/*", (req, res) => {
         url: "/" + jobPath,
       })
       .then((doc) => {
-        doc.contract_period = doc.contract_period.toLocaleString();
-        doc.post_period = doc.post_period.toLocaleString();
+        //フォームに表示するためにDate型からString型に直している。
+        doc.contract_period_from ? doc.contract_period_from.toString() : "";
+        doc.post_period_from ? doc.post_period_from.toString() : "";
         //secretを生成(サーバー側で持っておくトークンの照合元)
         tokens.secret((error, secret) => {
           //サーバー側でトークンを発行
@@ -610,27 +691,22 @@ router.post("/posts/delete/execute", (req, res) => {
   //UIよりURLを取得
   let url = req.body.url;
   //取得したURLをキーにDBに格納されている仕事情報を削除
-  MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
-    let db = client.db(DATABASE);
-    db.collection("jobs")
-      .deleteOne({
-        url: url,
-      })
-      .then(() => {
-        delete req.session._csrf;
-        res.clearCookie("_csrf");
-        //res.render("./account/posts/regist-complete.ejs");→リダイレクト先へ移設
-        //再送信防止のためのリダイレクト
-        res.redirect("/account/posts/delete/complete");
-      })
-      .catch((error) => {
-        throw error;
-      })
-      .finally(() => {
-        client.close();
-      });
-  });
+  job
+    .deleteOne({
+      url: url,
+    })
+    .then(() => {
+      delete req.session._csrf;
+      res.clearCookie("_csrf");
+      //res.render("./account/posts/regist-complete.ejs");→リダイレクト先へ移設
+      //再送信防止のためのリダイレクト
+      res.redirect("/account/posts/delete/complete");
+    })
+    .catch((error) => {
+      throw error;
+    });
 });
+
 
 /*********** (削除完了画面用)再送信防止用のリダイレクト先 ***********/
 router.get("/posts/delete/complete", (req, res) => {

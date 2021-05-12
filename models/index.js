@@ -9,13 +9,15 @@ mongoose.connect("mongodb://user:user@localhost:27017/testdb", {
   useFindAndModify: false
 });
 
+const default_db = {};
 
-const users_db = {};
+// const job_db = {};
+default_db.mongoose = mongoose;
 
-users_db.mongoose = mongoose;
+default_db.users = require("./user.model.js");
 
-users_db.users = require("./user.model.js");
+default_db.job = require("./job.model.js");
 
-users_db.ROLES = ["admin","client", "worker"];
+default_db.ROLES = ["admin","client", "worker"];
 
-module.exports = users_db;
+module.exports = default_db;
