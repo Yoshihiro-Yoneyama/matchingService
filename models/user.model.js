@@ -32,8 +32,8 @@ const usersSchema = mongoose.Schema({
     type: String,
     unique: true,
   },
-  role: {
-    type: String,
+  role_code: {
+    type:String
   },
   published: {
     type: Date,

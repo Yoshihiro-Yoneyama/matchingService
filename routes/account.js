@@ -4,6 +4,8 @@ const router = require("express").Router();
 const default_db = require("../models");
 const users = default_db.users;
 const job = default_db.job;
+const privileges = default_db.privileges;
+// const auth = default_db.privileges;
 
 /* 仕事登録関連に必要なモジュール(DB周り) */
 const {
@@ -201,56 +203,64 @@ router.post("/regist/temporary", (req, res) => {
   //let newAccount = newAccountDdata(req.body);
   let datetime = new Date();
 
-  //mongooseを用いたUser関数のインスタンス化及びデータの格納
-  const newAccount = new users({
-    role: req.body.role,
-    username: req.body.username,
-    email: req.body.email,
-    password: hash.digest(req.body.password), //パスワード
-    password_confirm: hash.digest(req.body.password_confirm), //パスワード確認用
-    published: datetime, //発行日
-  });
+  //選択されたアカウント種別(クライアント/ワーカー)より権限コードを取得
 
-  //バリデーションでエラーがあった場合の処理
-  if (errors) {
-    //入力情報と一緒にエラーも返してあげる
-    res.render("./account/regist-account-form.ejs", { errors });
-    return;
-  }
-
-  //メール認証で使用するトークンの生成
-  const token = jwt.sign({ email: newAccount.email }, config.secret);
-
-  //登録アカウント情報に上記のトークンプロパティを追加する
-  newAccount.confirmationCode = token;
-
-  //usersコレクションから入力されたメールアドレスと合致するものをがあればユーザー情報を返す
-  users
+  privileges
     .findOne({
-      email: req.body.email,
+      role: req.body.role,
     })
+    .then((role) => {
+      //mongooseを用いたUser関数のインスタンス化及びデータの格納
+      const newAccount = new users({
+        role_code: role.role_code,
+        username: req.body.username,
+        email: req.body.email,
+        password: hash.digest(req.body.password), //パスワード
+        password_confirm: hash.digest(req.body.password_confirm), //パスワード確認用
+        published: datetime, //発行日
+      });
 
-    //ユーザー情報(user)が返却されれば既に登録済みのアドレス情報であるためエラーメッセージを返す
-    .then((user) => {
-      if (user) {
-        res.render("./account/regist-account-form.ejs", {
-          message: "そのメールアドレスは既に登録されています。",
-        });
+      //バリデーションでエラーがあった場合の処理
+      if (errors) {
+        //入力情報と一緒にエラーも返してあげる
+        res.render("./account/regist-account-form.ejs", { errors });
         return;
-      } else {
-        //ユーザー情報を仮登録する
-        newAccount.save((error, user) => {
-          //登録と同時に仮登録完了メールを送る
-          nodemailer.sendConfirmationEmail(
-            user.username,
-            user.email,
-            user.confirmationCode
-          );
-
-          //再送信防止用にリダイレクト処理
-          res.redirect("/account/regist/account");
-        });
       }
+
+      //メール認証で使用するトークンの生成
+      const token = jwt.sign({ email: newAccount.email }, config.secret);
+
+      //登録アカウント情報に上記のトークンプロパティを追加する
+      newAccount.confirmationCode = token;
+
+      //usersコレクションから入力されたメールアドレスと合致するものをがあればユーザー情報を返す
+      users
+        .findOne({
+          email: req.body.email,
+        })
+
+        //ユーザー情報(user)が返却されれば既に登録済みのアドレス情報であるためエラーメッセージを返す
+        .then((user) => {
+          if (user) {
+            res.render("./account/regist-account-form.ejs", {
+              message: "そのメールアドレスは既に登録されています。",
+            });
+            return;
+          } else {
+            //ユーザー情報を仮登録する
+            newAccount.save((error, user) => {
+              //登録と同時に仮登録完了メールを送る
+              nodemailer.sendConfirmationEmail(
+                user.username,
+                user.email,
+                user.confirmationCode
+              );
+
+              //再送信防止用にリダイレクト処理
+              res.redirect("/account/regist/account");
+            });
+          }
+        });
     });
 });
 
@@ -706,7 +716,6 @@ router.post("/posts/delete/execute", (req, res) => {
       throw error;
     });
 });
-
 
 /*********** (削除完了画面用)再送信防止用のリダイレクト先 ***********/
 router.get("/posts/delete/complete", (req, res) => {

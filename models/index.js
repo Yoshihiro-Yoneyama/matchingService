@@ -11,12 +11,14 @@ mongoose.connect("mongodb://user:user@localhost:27017/testdb", {
 
 const default_db = {};
 
-// const job_db = {};
 default_db.mongoose = mongoose;
 
+//
 default_db.users = require("./user.model.js");
 
 default_db.job = require("./job.model.js");
+
+default_db.privileges = require("./privileges");
 
 default_db.ROLES = ["admin","client", "worker"];
 
