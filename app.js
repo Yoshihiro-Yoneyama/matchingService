@@ -1,6 +1,6 @@
 const express = require("express");
 
-/********* ログイン関係でいるやつ！！！ ********/
+/********* ログイン関係で必要なモジュール ********/
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
@@ -10,6 +10,16 @@ const { SESSION_SECRET } = require("./config/app.config.js").security;
 const accountcontrol = require("./lib/security/accountcontrol.js");
 
 const app = express();
+
+// const http = require("./lib/chat/chat.js");
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
+const socketio = require("./lib/chat/chat.js");
+
+
+
+
+
 
 //認証、認可処理時のエラーメッセージ表示用
 const flash = require("connect-flash");
@@ -21,20 +31,22 @@ app.disable("x-powered-by");
 
 //※静的ファイル使用(publicファイル内の静的ファイル(js,css)をejsに宛がうのに必要となる記述
 //静的ファイルを格納しているディレクトリー名をexpress.staticミドルウェア関数に渡して、ファイルを直接提供する
-app.use("/public",express.static(__dirname + "/public"));
+app.use("/public", express.static(__dirname + "/public"));
 
 /********* ログイン関係でいるやつ！！！ ********/
 app.use(cookieParser());
-app.use(session({
-  //SESSION_SECRETの中身をキーとして、クッキー情報を暗号化する
-  secret: SESSION_SECRET,
-  //セッションチェックをするたびにセッションを作成するか否かの指定
-  resave: false,
-  //初期化をしていない状態のセッションを保存するか否かの指定
-  saveUninitialized: true,
-  //レスポンスに設定するセッションIDクッキーの名前(何でもよい)
-  name: "sid"
-}));
+app.use(
+  session({
+    //SESSION_SECRETの中身をキーとして、クッキー情報を暗号化する
+    secret: SESSION_SECRET,
+    //セッションチェックをするたびにセッションを作成するか否かの指定
+    resave: false,
+    //初期化をしていない状態のセッションを保存するか否かの指定
+    saveUninitialized: true,
+    //レスポンスに設定するセッションIDクッキーの名前(何でもよい)
+    name: "sid",
+  })
+);
 //htmlのform_inputタグの内容を取得できるようにするモジュール
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -59,5 +71,24 @@ app.use("/posts/", require("./routes/posts.js"));
 //searchディレクトリにリクエストを送信
 app.use("/search/", require("./routes/search.js"));
 
+//(test)チャット機能実装部分
+app.use("/chat/", require("./routes/chat.js"));
+
+/* リアルタイムWebを実装するのにサーバーを立てる必要があるため、
+Socket.IOの設定はapp.jsで行う。 */
+//Socket.IOの準備(Socket.IOに接続)
+
+/* io.on("connection", (socket) => {
+  //フォームからデータ(メッセージ)を受信する
+  socket.on("sending message", (msg) => {
+    console.log("message: " + msg);
+    //受け取ったメッセージを接続しているクライアント全員に対して送信する
+    io.emit("new message", msg);
+  });
+}); */
+
 //3000番ポートを使用
-app.listen(3000);
+// app.listen(3000);
+socketio(io);
+http.listen(3000);
+

@@ -27,10 +27,10 @@ router.get("/*", (req, res) => {
     //countと仕事情報の2つをデーターベースから取りに行く
     Promise.all([
       //検索総件数のカウント
-      db.collection("posts").find(query)
+      db.collection("jobs").find(query)
         .count(),
       //キーワード(skills)を使ってdbの"posts"に検索しに行く
-      db.collection("posts").find(query)
+      db.collection("jobs").find(query)
         //応募期日での降順
         .sort({ post_period: -1 })
         //ページ番号×ページ毎表示件数後の仕事情報から表示する

@@ -38,6 +38,7 @@ const {
   authorize,
 } = require("../lib/security/accountcontrol.js"); //authenticate,authorize読み込み
 
+
 /* セキュリティ用モジュール */
 //csrf対策用モジュールをインスタンス化(このモジュールはインスタンス化して使う)
 let tokens = new require("csrf")();
@@ -441,13 +442,18 @@ router.get("/posts/edit/search/", (req, res) => {
   let regexp = new RegExp(`.*${keyword}>*`);
 
   //検索クエリ(部分一致で検索)
-  let query = { $or: [{ title: regexp }, { skills: regexp }] };
+  let query = {
+    user_id: req.user.user_id,
+    $or: [{ title: regexp }, { skills: regexp }],
+  };
 
   //mongodbに接続
   MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
     let db = client.db(DATABASE);
 
     //検索総件数と仕事情報を配列で格納
+    //results[0]=検索総件数
+    //results[1]=仕事情報
     Promise.all([
       //検索総件数の取得
       db.collection("jobs").find(query).count(),
