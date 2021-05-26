@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>チャットルーム</title>
+    <%- include("../_share/stylesheets.ejs") %>
+  </head>
+  <body>
+    <%- include("../_share/navbar.ejs") %>
+    <form>
+      <div><input type="text" id="login_user_id" value="<%= user_id %>"/></div>
+      <div><input type="text" id="job_id" value="job_id:<%= job_id %>"/></div>
+      <div><input type="text" id="room_id" value="<%= room_id %>"/></div>
+    </form>
+
+    <main class="container">
+      <div class="mt-5 mb-5">
+        <form class="send">
+          <input type="text" id="word" />
+          <button class="btn btn-secondary">送信</button>
+        </form>
+      </div>
+
+      <% for (var i = 0; i < msg.length; i++) { %>
+        <div><%= msg[i].message %></div>
+          <% } %>
+
+      <div id="messages"></div>
+
+      <script src="/socket.io/socket.io.js"></script>
+      <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script> -->
+      <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+      <script src="/public/source/javascripts/chat/chat_ui.js">
+      </script>
+
+      <%- include( "../_share/javascripts.ejs" ) %>
+    </main>
+  </body>
+</html>

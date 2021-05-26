@@ -14,7 +14,7 @@ const app = express();
 // const http = require("./lib/chat/chat.js");
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
-const socketio = require("./lib/chat/chat.js");
+const socketio = require("./lib/chat/socketio.js");
 
 
 
@@ -72,7 +72,7 @@ app.use("/posts/", require("./routes/posts.js"));
 app.use("/search/", require("./routes/search.js"));
 
 //(test)チャット機能実装部分
-app.use("/chat/", require("./routes/chat.js"));
+app.use("/job_matching/", require("./routes/matching.js"));
 
 /* リアルタイムWebを実装するのにサーバーを立てる必要があるため、
 Socket.IOの設定はapp.jsで行う。 */

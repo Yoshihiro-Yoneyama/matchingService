@@ -73,6 +73,10 @@ const jobsSchema = mongoose.Schema({
   //発行日
   published: {
     type: Date
+  },
+  job_id: {
+    type: Number,
+    index: true,
   }
 });
 

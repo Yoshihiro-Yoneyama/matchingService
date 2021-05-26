@@ -10,12 +10,14 @@ router.get("/*", (req, res) => {
   MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
     let db = client.db(DATABASE);
     //投稿されている記事をDBからとってくる
-    db.collection("posts").findOne({
+    db.collection("jobs").findOne({
       //リクエストのurlがDBに登録されているurlと一致するものをとってくる
       url: req.url
       //とってきた投稿記事を"doc"に格納
     }).then((doc) => {
       //docを表示する（この状態で）
+      doc.contract_period_from ? doc.contract_period_from.toString() : "";
+      doc.post_period_from ? doc.post_period_from.toString() : "";
       res.render("./posts/index.ejs", doc);
     }).catch((error) => {
       throw error;

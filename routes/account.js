@@ -398,30 +398,6 @@ router.post("/posts/regist/execute", (req, res) => {
     //再送信防止用にリダイレクト処理
     res.redirect("/account/posts/regist/complete");
   });
-
-  /* ※mongooseを使わずMongoDBに直接接続する方法(未使用)
-
-  //データベース接続
-  MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
-    let db = client.db(DATABASE);
-    //データを登録するコレクションを選択(posts)
-    db.collection("jobs")
-      //"original"に格納されているデータを登録
-      .insertOne(original)
-      .then(() => {
-        delete req.session._csrf;
-        res.clearCookie("_csrf");
-        //res.render("./account/posts/regist-complete.ejs");→リダイレクト先へ移設
-        //再送信防止のためのリダイレクト
-        res.redirect("/account/posts/regist/complete");
-      })
-      .catch((error) => {
-        throw error;
-      })
-      .finally(() => {
-        client.close();
-      });
-  }); */
 });
 
 /*********** (登録完了画面用)再送信防止用のリダイレクト先 ***********/

@@ -11,6 +11,7 @@
 </head>
 <body>
   <%- include("../_share/navbar.ejs") %>
+
     <main class="container">
       <div class="border-bottom mt-5 mb-5">
         <h1><%= title %></h1>
@@ -20,9 +21,9 @@
         <dt class="col-3">業務内容：</dt>
         <dd class="col-9"><%= job_description %></dd>
         <dt class="col-3">業務期間</dt>
-        <dd class="col-9"><%= contract_period.toLocaleString() %></dd>
+        <dd class="col-9"><%= contract_period_from %></dd>
         <dt class="col-3">募集期間</dt>
-        <dd class="col-9"><%= post_period.toLocaleString() %></dd>
+        <dd class="col-9"><%= post_period_from %></dd>
         <dt class="col-3">勤務地</dt>
         <dd class="col-9"><%= location %></dd>
         <dt class="col-3">勤務形態</dt>
@@ -31,8 +32,19 @@
         <dd class="col-9"><%= industry_types %></dd>
         <dt class="col-3">スキルカテゴリー</dt>
         <dd class="col-9"><%= skills %></dd>
-
       </dl>
+
+      <!-- urlを非表示で画面に設置し、それをキーとしてDBに格納されている仕事情報を削除しに行く -->
+
+
+      <% if (locals.user) { %>
+        <form method="POST" action="/job_matching/room" class="d-flex">
+          <input type="text" hidden  class="form-control-plaintext" id="url" name="url" value="<%= url %>"/>
+          <input class="btn btn-primary" type="submit" value="応募"/>
+      </form>
+      <% } %>
+
+      
     </main>
     <%- include( "../_share/javascripts.ejs" ) %>
 
