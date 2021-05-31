@@ -10,17 +10,22 @@ const chatroomSchema = mongoose.Schema(
   {
     user_id: [String],
     job_id: {
-      type: String
+      type: String,
     },
     status: {
       type: String,
       enum: ["close", "open"],
       default: "open",
     },
-    /* create_at: {
+    createdAt: {
       type: Date,
-    }, */
-    timestamp: true
+    },
+    room_url: {
+      type: String,
+    },
+    room_id: {
+      type: Number,
+    },
   },
   { collection: "chatroom" }
 );

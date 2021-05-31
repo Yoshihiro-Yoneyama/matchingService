@@ -19,7 +19,7 @@ const msgSchema = new mongoose.Schema(
     room_id: {
       type: Number,
     },
-    create_at: {
+    createdAt: {
       type: Date,
     },
   },

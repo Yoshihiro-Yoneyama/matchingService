@@ -10,9 +10,9 @@
   <body>
     <%- include("../_share/navbar.ejs") %>
     <form>
-      <div><input type="text" id="login_user_id" value="<%= user_id %>"/></div>
-      <div><input type="text" id="job_id" value="job_id:<%= job_id %>"/></div>
-      <div><input type="text" id="room_id" value="<%= room_id %>"/></div>
+      <div class="ml-3 mt-1">login_user_id:<input type="text" id="login_user_id" value="<%= user_id %>"/></div>
+      <div class="ml-3">job_id:<input type="text" id="job_id" value="<%= job_id %>"/></div>
+      <div class="ml-3">room_id:<input type="text" id="room_id" value="<%= room_id %>"/></div>
     </form>
 
     <main class="container">
