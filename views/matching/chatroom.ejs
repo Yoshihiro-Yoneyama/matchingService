@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>チャットルーム</title>
     <%- include("../_share/stylesheets.ejs") %>
+    <link rel="stylesheet" href="../../public/source/stylesheets/bmesse.css">
   </head>
   <body>
     <%- include("../_share/navbar.ejs") %>
@@ -13,22 +14,49 @@
       <div class="ml-3 mt-1">login_user_id:<input type="text" id="login_user_id" value="<%= user_id %>"/></div>
       <div class="ml-3">job_id:<input type="text" id="job_id" value="<%= job_id %>"/></div>
       <div class="ml-3">room_id:<input type="text" id="room_id" value="<%= room_id %>"/></div>
+      <div class="ml-3">role_code:<input type="text" id="role_code" value="<%= role_code %>"/></div>
     </form>
 
-    <main class="container">
-      <div class="mt-5 mb-5">
+    <div class="chat_container">
+      <div id="bms_messages_container">
+      <% for (var i = 0; i < msg.length; i++) { %>
+
+        <% if (msg[i].user_id == user_id) { %> 
+          <div id="bms_messages">
+            <div class="bms_message bms_right">
+              <div class="bms_message_box">
+                <div class="bms_message_content">
+                  <div class="bms_message_text"><%= msg[i].message %></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bms_clear"></div><!-- 回り込みを解除（スタイルはcssで充てる） -->
+      
+        <% } else { %> 
+          <div id="bms_messages">
+            <div class="bms_message bms_left">
+              <div class="bms_message_box">
+                <div class="bms_message_content">
+                  <div class="bms_message_text"><%= msg[i].message %></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bms_clear"></div><!-- 回り込みを解除（スタイルはcssで充てる） -->
+        <% } %>
+      <% } %>
+
+        <div id="messages"></div>
+
+    </div>
+      <div id="bms_send">
         <form class="send">
-          <input type="text" id="word" />
-          <button class="btn btn-secondary">送信</button>
+          <textarea id="bms_send_message"></textarea>
+          <button id="bms_send_btn">送信</button>
         </form>
       </div>
-
-      <% for (var i = 0; i < msg.length; i++) { %>
-        <div><%= msg[i].message %></div>
-          <% } %>
-
-      <div id="messages"></div>
-
+    </div>
       <script src="/socket.io/socket.io.js"></script>
       <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script> -->
       <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
@@ -36,6 +64,5 @@
       </script>
 
       <%- include( "../_share/javascripts.ejs" ) %>
-    </main>
   </body>
 </html>

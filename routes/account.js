@@ -27,7 +27,7 @@ const hash = require("../lib/security/hash.js");
 const jwt = require("jsonwebtoken");
 
 /* メール送信用モジュール */
-const nodemailer = require("../config/nodevailer.config.js");
+const nodemailer = require("../config/nodemailer.config.js");
 
 /* 仕事情報編集削除用検索ページに必要なモジュール */
 const { MAX_ITEM_PER_PAGE } = require("../config/app.config.js").search;
@@ -46,6 +46,25 @@ let tokens = new require("csrf")();
 /* 登録画面にて入力した情報について、修正のため確認画面から戻ってきたときに復元する実装 */
 //mongodbに登録するデータを成形する関数
 let createRegistData = (body) => {
+  let datetime = new Date();
+  //nameタグを目印に値を取りに行く
+  return {
+    url: body.url, //仕事情報の遷移先url(後で消す)
+    title: body.title, //仕事名
+    job_description: body.job_description, //仕事内容
+    contract_period_from: body.contract_period_from, //契約期間
+    post_period_from: body.post_period_from, //応募期間
+    location: body.location, //勤務地
+    work_style: body.work_style, //業務形態
+    industry_types: body.industry_types, //業種
+    skills: body.skills, //スキルカテゴリー
+    update: datetime, //更新日
+    published: datetime, //発行日
+  };
+};
+
+//mongodbに登録するデータを成形する関数
+let createSkillsheetData = (body) => {
   let datetime = new Date();
   //nameタグを目印に値を取りに行く
   return {
@@ -310,8 +329,8 @@ router.get("/regist-email/:confirmationCode", (req, res) => {
     });
 });
 
-/***************************************** 仕事情報のCRUD操作 *****************************************/
-/*********** 登録画面表示 ***********/
+
+/*********** 登録画面表示(仕事情報/スキルシート) ***********/
 /* csrf対策(トークン発行) */
 router.get("/posts/regist", (req, res) => {
   //secretを生成(サーバー側で持っておくトークンの照合元)
@@ -322,10 +341,24 @@ router.get("/posts/regist", (req, res) => {
     req.session._csrf = secret;
     //クライアント側ではクッキーにトークンを保存
     res.cookie("_csrf", token);
-    res.render("./account/posts/regist-form.ejs");
+    if (req.user.role_code == "0003") {
+      res.render("./account/posts/regist-form.ejs");
+    }
+    if ( req.user.role_code == "0002") {
+      res.render("./account/post/skillsheet-form.ejs");
+    }
   });
 });
 
+/***************************************** スキルシートのCRUD操作 *****************************************/
+/*********** 確認画面から戻ってきた際にデータの復元込みで登録画面表示 **********/
+router.post("/posts/skillsheet/input", (req, res) => {
+  //フォームの入力情報の取得
+  let original = createRegistData(req.body);
+  res.render("./account/posts/regist-form.ejs", { original });
+});
+
+/***************************************** 仕事情報のCRUD操作 *****************************************/
 /*********** 確認画面から戻ってきた際にデータの復元込みで登録画面表示 **********/
 router.post("/posts/regist/input", (req, res) => {
   //フォームの入力情報の取得

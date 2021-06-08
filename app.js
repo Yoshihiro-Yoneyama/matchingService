@@ -11,7 +11,7 @@ const accountcontrol = require("./lib/security/accountcontrol.js");
 
 const app = express();
 
-// const http = require("./lib/chat/chat.js");
+//チャットに必要なモジュール
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const socketio = require("./lib/chat/socketio.js");
@@ -72,7 +72,7 @@ app.use("/posts/", require("./routes/posts.js"));
 app.use("/search/", require("./routes/search.js"));
 
 //(test)チャット機能実装部分
-app.use("/job_matching/", require("./routes/matching.js"));
+app.use("/job_matching/", require("./routes/job_matching.js"));
 
 /* リアルタイムWebを実装するのにサーバーを立てる必要があるため、
 Socket.IOの設定はapp.jsで行う。 */
@@ -87,8 +87,7 @@ Socket.IOの設定はapp.jsで行う。 */
   });
 }); */
 
-//3000番ポートを使用
-// app.listen(3000);
+
 socketio(io);
 http.listen(3000);
 

@@ -35,7 +35,7 @@ router.get("/*", (req, res) => {
         .sort({ post_period: -1 })
         //ページ番号×ページ毎表示件数後の仕事情報から表示する
         .skip((page - 1) * MAX_ITEM_PER_PAGE)
-        //ページ毎表示件数上限(2件)
+        //ページ毎表示件数上限
         .limit(MAX_ITEM_PER_PAGE)
         //検索結果を配列で取得
         .toArray()

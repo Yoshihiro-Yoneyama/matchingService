@@ -1,0 +1,19 @@
+<!-- 検索結果をカードスタイルで表示 -->
+<div class="card mt-3 mb-3">
+  <!-- 仕事詳細情報のリンク貼り付け -->
+  <a href="/job_matching/room/<%= room_url %>">
+    <div class="card-body">
+      <!-- 仕事名 -->
+
+        <h5 class="card-title"><%= title %></h5>
+
+      <!-- 仕事内容 -->
+      <% if(role_code == "0002") { %> 
+        <p class="card-text"></p>
+      <% } %> 
+      <% if(role_code == "0003") { %> 
+        <p class="card-text"><%= username %></p>
+      <% } %> 
+    </div>
+  </a>
+</div>

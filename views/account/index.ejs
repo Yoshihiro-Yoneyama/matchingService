@@ -15,9 +15,9 @@
         <nav>
           <a class="nav-link active disabled">ホーム</a>
           <% if (locals.user.role_code == "0002") { %>
-            <a class="nav-link" href="/matching/job_list">応募一覧へ</a>
+            <a class="nav-link" href="/job_matching/job_list">応募一覧へ</a>
           <% } else if (locals.user.role_code == "0003") { %> 
-            <a class="nav-link" href="/matching/selection/#">選考一覧へ</a>
+            <a class="nav-link" href="/job_matching/job_list">選考一覧へ</a>
           <% } %> 
 
           <% if (locals.user.role_code == "0002") { %>

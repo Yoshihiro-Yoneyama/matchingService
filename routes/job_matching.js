@@ -11,6 +11,7 @@ const hash = require("../lib/security/hash.js");
 const default_db = require("../models");
 // const users = default_db.users;
 const job = default_db.job;
+const user = default_db.users;
 const chatroom = default_db.chatroom;
 const chatmsg = default_db.chatmsg;
 
@@ -216,6 +217,7 @@ router.get("/room/*", (req, res) => {
         user_id: req.user.user_id,
         job_id: room.job_id,
         room_id: room.room_id,
+        role_code: req.user.role_code
       };
       //room_idが合致するメッセージを取得
       chatmsg
@@ -226,7 +228,6 @@ router.get("/room/*", (req, res) => {
         //メッセージ取得
         .then((msg) => {
           roominfo.msg = msg;
-          console.log(msg);
           res.render("./matching/chatroom.ejs", roominfo);
         });
     });
@@ -234,7 +235,69 @@ router.get("/room/*", (req, res) => {
 
 //選考中の仕事情報一覧表示
 router.get("/job_list", (req, res) => {
-  res.render("./matching/job_list");
+  //ログインIDからチャットルーム情報を取得
+  chatroom
+    .find({ user_id: req.user.user_id })
+    .then((room) => {
+      //→ルームが開設されている仕事情報全て取得
+      let testUserid = [];
+      let testJobid = [];
+
+      //roomからワーカーのuser_idとjob_idを抜き出し(配列で格納されているため配列で取得)
+      for (let i = 0; i < room.length; i++) {
+        testUserid[i] = room[i].user_id[0];
+        testJobid[i] = room[i].job_id;
+      }
+      //仕事情報とワーカーのユーザー情報を取得
+      Promise.all([
+        job.find({job_id: { $in: testJobid }}),
+        user.find({user_id: { $in: testUserid }})
+      ])
+        .then((job_listInfo) => {
+
+          //開設したチャットルームに紐づけられた仕事情報を全件格納
+          let getJobInfo = job_listInfo[0];
+          //応募したワーカーユーザー情報を全件格納
+          let getUserInfo = job_listInfo[1];
+
+          //room情報とroomにあるjob_idとuser_idから
+          let test2 = [];
+          let loginUserrole = req.user.role_code;
+
+          //test2にchatoroom情報を配列で格納
+          for (let i = 0; i < room.length; i++) {
+            test2[i] = room[i];
+            test2[i].role_code = loginUserrole;
+
+            //取得した全user_idとchatoroomのuser_idを照合し、合致したuser_idのusernameを格納
+            for (let j = 0; j < getUserInfo.length; j++) {
+              if ( test2[i].user_id[0] == getUserInfo[j].user_id ) {
+                test2[i].username = getUserInfo[j].username;
+              }
+            }
+            //取得した全job_idとchatoroomのjob_idを照合し、合致したjob_idの仕事タイトルを格納
+            for (let k = 0; k < getJobInfo.length; k++) {
+              if ( test2[i].job_id == getJobInfo[k].job_id) {
+                test2[i].title = getJobInfo[k].title;
+              }
+            }
+          }
+
+          res.render("./matching/job_list", { test2 });
+        });
+      /* .then((getUserInfo) => {
+          let test = [];
+          for (let i = 0; i < room.length; i++) {
+            test[i] = room[i];
+            test[i].username = getUserInfo[i].username;
+
+          }
+          res.render("./matching/job_list", { test2 });
+        }); */
+    })
+    .catch((error) => {
+      throw error;
+    });
 });
 
 module.exports = router;
