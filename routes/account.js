@@ -5,7 +5,7 @@ const default_db = require("../models");
 const users = default_db.users;
 const job = default_db.job;
 const privileges = default_db.privileges;
-// const auth = default_db.privileges;
+const skillsheet = default_db.skillsheet;
 
 /* 仕事登録関連に必要なモジュール(DB周り) */
 const {
@@ -38,7 +38,6 @@ const {
   authorize,
 } = require("../lib/security/accountcontrol.js"); //authenticate,authorize読み込み
 
-
 /* セキュリティ用モジュール */
 //csrf対策用モジュールをインスタンス化(このモジュールはインスタンス化して使う)
 let tokens = new require("csrf")();
@@ -69,16 +68,13 @@ let createSkillsheetData = (body) => {
   //nameタグを目印に値を取りに行く
   return {
     url: body.url, //仕事情報の遷移先url(後で消す)
-    title: body.title, //仕事名
-    job_description: body.job_description, //仕事内容
-    contract_period_from: body.contract_period_from, //契約期間
-    post_period_from: body.post_period_from, //応募期間
+    experience: body.experience, //経歴
+    skill: body.skill, //スキル
     location: body.location, //勤務地
     work_style: body.work_style, //業務形態
     industry_types: body.industry_types, //業種
-    skills: body.skills, //スキルカテゴリー
     update: datetime, //更新日
-    published: datetime, //発行日
+    createAt: datetime, //発行日
   };
 };
 
@@ -110,6 +106,25 @@ let validateRegistData = (body) => {
   //返すエラーがあるか
   return isValidated ? undefined : errors;
 };
+
+// 登録画面のバリデーション(スキルシート)
+let validateRegistData_skillsheet = (body) => {
+  let isValidated = true,
+    errors = {};
+
+  if (!body.url) {
+    isValidated = false;
+    errors.url = "URLが未入力です。'/'から始まるURLを入力してください。";
+  }
+
+  if (body.url && /^\//.test(body.url) === false) {
+    isValidated = false;
+    errors.url = "'/'から始まるURLを入力してください。";
+  }
+
+  return isValidated ? undefined : errors;
+};
+
 // 更新画面のバリデーション
 let validateEditData = (body) => {
   let isValidated = true,
@@ -329,9 +344,187 @@ router.get("/regist-email/:confirmationCode", (req, res) => {
     });
 });
 
-
-/*********** 登録画面表示(仕事情報/スキルシート) ***********/
+/***************************************** スキルシートのCRUD操作 *****************************************/
+/*********** 登録画面表示(スキルシート) ***********/
 /* csrf対策(トークン発行) */
+router.get("/skills/regist", (req, res) => {
+  //secretを生成(サーバー側で持っておくトークンの照合元)
+  tokens.secret((error, secret) => {
+    //サーバー側でトークンを発行
+    let token = tokens.create(secret);
+    //サーバーサイドはセッションにsecretを保存
+    req.session._csrf = secret;
+    //クライアント側ではクッキーにトークンを保存
+    res.cookie("_csrf", token);
+
+    skillsheet
+      .findOne({
+        user_id: req.user.user_id,
+      })
+      .then((original) => {
+        if (original) {
+          res.render("./account/skills/edit-form_skill.ejs", { original });
+          return;
+        } else {
+          res.render("./account/skills/regist-form_skill.ejs");
+        }
+      });
+  });
+});
+
+/*********** (スキル)確認画面から戻ってきた際にデータの復元込みで登録画面表示 **********/
+router.post("/skills/regist/input", (req, res) => {
+  //フォームの入力情報の取得
+  let original = createSkillsheetData(req.body);
+  res.render("./account/skills/regist-form_skill.ejs", { original });
+});
+
+/********** (スキル)登録確認画面へのルーティング *********/
+router.post("/skills/regist/confirm", (req, res) => {
+  //フォームの入力情報の取得
+  let original = createSkillsheetData(req.body);
+  //バリデーショチェックの追加
+  let errors = validateRegistData_skillsheet(req.body);
+  //バリデーションチェックでエラーがあれば
+  if (errors) {
+    //入力情報と一緒にエラーも返してあげる
+    res.render("./account/skills/regist-form_skill.ejs", { errors, original });
+    return; //※return必須
+  }
+  //登録確認画面へ遷移
+  res.render("./account/skills/regist-confirm_skill.ejs", { original });
+});
+
+/*********** (スキル)登録完了画面へのルーティング **********/
+/* csrf対策(トークン照合) */
+router.post("/skills/regist/execute", (req, res) => {
+  let secret = req.session._csrf;
+  let token = req.cookies._csrf;
+
+  if (tokens.verify(secret, token) === false) {
+    throw new Error("Invalid Token.");
+  }
+  //フォームの入力情報の取得
+  let original = createSkillsheetData(req.body);
+  //バリデーショチェックの追加
+  let errors = validateRegistData_skillsheet(req.body);
+  //バリデーションチェックでエラーがあれば
+  if (errors) {
+    //入力情報と一緒にエラーも返してあげる
+    res.render("./account/skills/regist-form_skill.ejs", { errors, original });
+    return;
+  }
+  original.user_id = req.user.user_id;
+  original.username = req.user.username;
+
+  //DBに登録時間を格納する用
+  let datetime = new Date();
+
+  //フォームから入力値をとってくる
+  //mongooseを用いたjob関数のインスタンス化及びデータの格納
+  const newSkillsheet = new skillsheet({
+    url: req.body.url, //仕事情報の遷移先url(後で消す)
+    user_id: req.user.user_id,
+    username: req.user.username, //ユーザー名
+    experience: req.body.experience, //経歴
+    skill: req.body.skill, //スキル
+    location: req.body.location, //希望勤務地
+    work_style: req.body.work_style, //希望就労形態
+    industry_types: req.body.industry_types, //希望業種
+    createAt: datetime, //発行日
+  });
+
+  newSkillsheet.save().then(() => {
+    //csrfトークンの削除
+    delete req.session._csrf;
+    //クッキーの削除
+    res.clearCookie("_csrf");
+    //再送信防止用にリダイレクト処理
+    res.redirect("/account/skills/regist/complete");
+  });
+});
+
+/*********** (登録完了画面用)再送信防止用のリダイレクト先 ***********/
+router.get("/skills/regist/complete", (req, res) => {
+  res.render("./account/skills/regist-complete_skill.ejs");
+});
+
+/********** (スキル)登録確認画面へのルーティング *********/
+router.post("/skills/edit/confirm", (req, res) => {
+  //フォームの入力情報の取得
+  let original = createSkillsheetData(req.body);
+  //バリデーショチェックの追加
+  let errors = validateRegistData_skillsheet(req.body);
+  //バリデーションチェックでエラーがあれば
+  if (errors) {
+    //入力情報と一緒にエラーも返してあげる
+    res.render("./account/skills/edit-form_skill.ejs", { errors, original });
+    return; //※return必須
+  }
+  //登録確認画面へ遷移
+  res.render("./account/skills/edit-confirm_skill.ejs", { original });
+});
+
+/*********** (スキル)更新完了画面へのルーティング **********/
+/* csrf対策(トークン照合) */
+router.post("/skills/edit/execute", (req, res) => {
+  let secret = req.session._csrf;
+  let token = req.cookies._csrf;
+
+  if (tokens.verify(secret, token) === false) {
+    throw new Error("Invalid Token.");
+  }
+  //フォームの入力情報の取得
+  let original = createSkillsheetData(req.body);
+  //バリデーショチェックの追加
+  let errors = validateRegistData_skillsheet(req.body);
+  //バリデーションチェックでエラーがあれば
+  if (errors) {
+    //入力情報と一緒にエラーも返してあげる
+    res.render("./account/skills/edit-form.ejs", { errors, original });
+    return;
+  }
+
+  let datetime = new Date();
+
+  //仕事情報更新(※更新処理はインスタンス化しない)
+  skillsheet
+    .findOneAndUpdate(
+      {
+        //URLと一致した仕事情報について更新
+        url: original.url,
+      },
+      //更新内容↓
+      {
+        $set: {
+          experience: original.experience, //経歴
+          skill: original.skill, //スキル
+          location: original.location, //勤務地
+          work_style: original.work_style, //業務形態
+          industry_types: original.industry_types, //業種
+          update: datetime, //更新日
+        },
+      },
+      (error) => {
+        if (error) throw error;
+      }
+    )
+    .then(() => {
+      delete req.session._csrf;
+      res.clearCookie("_csrf");
+      //res.render("./account/posts/regist-complete.ejs");→リダイレクト先へ移設
+      //再送信防止のためのリダイレクト
+      res.redirect("/account/skills/edit/complete");
+    });
+});
+
+/*********** (更新完了画面用)再送信防止用のリダイレクト先 ***********/
+router.get("/skills/edit/complete", (req, res) => {
+  res.render("./account/skills/edit-complete_skill.ejs");
+});
+
+/***************************************** 仕事情報のCRUD操作 *****************************************/
+/*********** 登録画面表示(仕事情報/スキルシート) ***********/
 router.get("/posts/regist", (req, res) => {
   //secretを生成(サーバー側で持っておくトークンの照合元)
   tokens.secret((error, secret) => {
@@ -341,24 +534,10 @@ router.get("/posts/regist", (req, res) => {
     req.session._csrf = secret;
     //クライアント側ではクッキーにトークンを保存
     res.cookie("_csrf", token);
-    if (req.user.role_code == "0003") {
-      res.render("./account/posts/regist-form.ejs");
-    }
-    if ( req.user.role_code == "0002") {
-      res.render("./account/post/skillsheet-form.ejs");
-    }
+    res.render("./account/posts/regist-form.ejs");
   });
 });
 
-/***************************************** スキルシートのCRUD操作 *****************************************/
-/*********** 確認画面から戻ってきた際にデータの復元込みで登録画面表示 **********/
-router.post("/posts/skillsheet/input", (req, res) => {
-  //フォームの入力情報の取得
-  let original = createRegistData(req.body);
-  res.render("./account/posts/regist-form.ejs", { original });
-});
-
-/***************************************** 仕事情報のCRUD操作 *****************************************/
 /*********** 確認画面から戻ってきた際にデータの復元込みで登録画面表示 **********/
 router.post("/posts/regist/input", (req, res) => {
   //フォームの入力情報の取得
@@ -577,21 +756,6 @@ router.post("/posts/edit/execute", (req, res) => {
 
   let datetime = new Date();
 
-  //※インスタンス化は更新処理では必要ない
-  /* const updateJob = new job({
-    user_id: req.user.user_id,
-    url: req.body.url, //仕事情報の遷移先url(後で消す)
-    title: req.body.title, //仕事名
-    job_description: req.body.job_description, //仕事内容
-    contract_period_from: req.body.contract_period, //契約期間
-    post_period_from: req.body.post_period_from, //応募期間
-    location: req.body.location, //勤務地
-    work_style: req.body.work_style, //業務形態
-    industry_types: req.body.industry_types, //業種
-    skills: req.body.skills, //スキルカテゴリー
-    update: datetime, //更新日
-  }); */
-
   //仕事情報更新(※更新処理はインスタンス化しない)
   job
     .findOneAndUpdate(
@@ -625,46 +789,6 @@ router.post("/posts/edit/execute", (req, res) => {
       res.redirect("/account/posts/edit/complete");
     });
 });
-
-/*   //MongoDBでの更新処理
-  MongoClient.connect(CONNECTION_URL, OPTIONS, (error, client) => {
-    let db = client.db(DATABASE);
-    db.collection("jobs")
-      //仕事情報を入力させているものに更新
-      .updateOne(
-        {
-          //URLと一致した仕事情報について更新
-          url: original.url,
-        },
-        //更新内容↓
-        {
-          $set: {
-            title: original.title,
-            job_description: original.job_description,
-            contract_period: original.contract_period,
-            post_period_from: original.post_period_from,
-            location: original.location,
-            work_style: original.work_style,
-            industry_types: original.industry_types,
-            skills: original.skills,
-          },
-        }
-      )
-      .then(() => {
-        delete req.session._csrf;
-        res.clearCookie("_csrf");
-        //res.render("./account/posts/regist-complete.ejs");→リダイレクト先へ移設
-        //再送信防止のためのリダイレクト
-        res.redirect("/account/posts/edit/complete");
-      })
-      .catch((error) => {
-        throw error;
-      })
-      .finally(() => {
-        client.close();
-      });
-  });
-}); */
 
 /*********** (更新完了画面用)再送信防止用のリダイレクト先 ***********/
 router.get("/posts/edit/complete", (req, res) => {

@@ -1,38 +1,52 @@
+html {
+  height: 100%;
+}
+
 body {
   background-color: #fafafa;
+  height: 80%;
+  margin: 0;
 }
 
 
 .chat_container{
-  height: 600px;
+  height: 100%;
   width: 50%;
   margin: 10px auto;
+  overflow-y: auto;
+  scroll-snap-type: y;
+
 }
+
+/* .scroll-block {
+  scroll-behavior: smooth;
+  max-height: 100%;
+} */
 
 /* チャットの外側部分① */
 #bms_messages_container{
+  justify-content: flex-start;
   height: 100%;/*your_containerに対して100%になる */
   width: 100%;/*your_containerに対して100%になる */
+
 
 }
 
 /* タイムライン */
-#bms_semmsages {
+#bms_messages {
   overflow: auto;/* スクロールを効かせつつ、メッセージがタイムラインの外に出ないようにする */
   height: 100%;
-  border-right: 1px solid #ddd;
-  border-left: 1px solid #ddd;
-  background-color: #eee;
-  box-shadow: 0px 2px 2px 0px rgba(0,0,0,0.2) inset;/*ヘッダーの下に影を入れる*/
+
 }
 
 /* メッセージのスタイル */
 .bms_message {
   margin: 0;
-  padding: 0 14px;/*吹き出しがタイムラインの側面にひっつかない様に隙間を開ける*/
+  padding: 0 12px;/*吹き出しがタイムラインの側面にひっつかない様に隙間を開ける*/
   font-size: 16px;
   word-wrap: break-word;/* 吹き出し内で自動で改行 */
   white-space: normal;/*指定widthに合わせて、文字を自動的に改行*/
+  display: flex; 
 }
 
 .bms_message_box{
@@ -42,15 +56,15 @@ body {
 }
 
 .bms_message_content{
-  padding: 20px;/*文字や画像（コンテンツ）の外側に隙間を入れる*/
+  padding: 12px;/*文字や画像（コンテンツ）の外側に隙間を入れる*/
 }
 
 .bms_left{
-  float: left;
-  line-height: 0.8em;
+  line-height: 1.0em;
 }
 
 .bms_left .bms_message_box {
+  max-width: 40%;
   color: #333;/*テキストを黒にする*/
   background: #fff;
   border: 2px solid #13178E;
@@ -59,11 +73,12 @@ body {
 }
 
 .bms_right{
-  float: right;
-  line-height: 0.8em;
+  flex-direction: row-reverse;  /* 左右の並び順を逆順にする */
+  line-height: 1.0em;
 }
 
 .bms_right .bms_message_box {
+  max-width: 40%;
   color: #fff;/*テキストを白にする*/
   background: #13178E;
   border: 2px solid #13178E;
@@ -76,25 +91,34 @@ body {
   clear: both; /* 左メッセージと右メッセージの回り込み(float)の効果の干渉を防ぐために必要（これが無いと、自分より下のメッセージにfloatが影響する） */
 }
 
+.dummy {
+  background-color: #fff;
+  height: 72px;
+}
+
 #bms_send {
 /*   border-right: 1px solid #ddd;
   border-left: 1px solid #ddd;
   border-bottom: 1px solid #ddd;
   height: 48px;
   padding: 4px; */
+  bottom: 0px;
+  width: 50%;
+  position: fixed;
+  background-color: #fff;
 }
 
 #bms_send_message{
   width: calc(100% - 75px);/*常に送信ボタンの横幅を引いたサイズに動的に計算*/
   line-height: 16px;
   height: 48px;
-  padding: 14px 6px 0px 6px;/*文字がテキストエリアの中心になる様に隙間調整*/
+  padding: 16px 6px 0px 6px;/*文字がテキストエリアの中心になる様に隙間調整*/
   border: 1px solid #ccc;
   border-radius: 4px;/*角丸*/
   text-align: left;/*文字を左寄せ*/
   box-shadow: 2px 2px 4px 0px rgba(0,0,0,0.2) inset;/*内側に影を入れてテキストエリアらしくした*/
   box-sizing: border-box;/*paddingとborderの要素の高さと幅の影響をなくす（要素に高さと幅を含める）*/
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 #bms_send_btn {
@@ -110,7 +134,7 @@ body {
   border: 1px solid #bbb;
   border-radius: 4px;/*角丸*/
   box-sizing: border-box;/*paddingとborderの要素の高さと幅の影響をなくす（要素に高さと幅を含める）*/
-  margin-top: 8px;
+  margin-top: 4px;
 }
 
 #bms_send_btn:hover {

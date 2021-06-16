@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TWICE MATCHING</title>
+  <!-- JavaScriptインポート -->
+  <%- include("../_share/stylesheets.ejs") %>
+    
+</head>
+<body>
+  <%- include("../_share/navbar.ejs") %>
+
+    <main class="container">
+      <div class="border-bottom mt-5 mb-5">
+        <h1><%= username %></h1>
+      </div>
+      <!-- 仕事情報表示 -->
+      <dl class="row mt-5 mb-5">
+        <dt class="col-3">ワーカー名：</dt>
+        <dd class="col-9"><%= username %></dd>
+        <dt class="col-3">経歴：</dt>
+        <dd class="col-9"><%= experience %></dd>
+        <dt class="col-3">スキル</dt>
+        <dd class="col-9"><%= skill %></dd>
+        <dt class="col-3">希望勤務地</dt>
+        <dd class="col-9"><%= location %></dd>
+        <dt class="col-3">勤務形態</dt>
+        <dd class="col-9"><%= work_style%></dd>
+        <dt class="col-3">業種</dt>
+        <dd class="col-9"><%= industry_types %></dd>
+      </dl>
+      <br/>
+      <!-- urlを非表示で画面に設置し、それをキーとしてDBに格納されている仕事情報を削除しに行く -->
+
+
+      <% if (locals.user) { %>
+        <p>ワーカーに提示する仕事内容を選択してください。</p>
+        <form method="POST" action="/job_matching/room" class="d-flex">
+          <input type="text" hidden  class="form-control-plaintext" id="url" name="url" value="<%= url %>"/>
+          <select class="col-2" name="job" id="job">
+            <option value="">
+            <% for ( let i = 0; i < title.length; i++ ) { %>
+              <option value="<%= title[i] %>"><%= title[i] %></option>
+            <% } %> 
+          </select>
+          <span class="col-1"></span>
+
+          <input class="btn btn-primary col-1" type="submit" value="スカウト"/>
+      </form>
+      <% } %>
+
+      
+    </main>
+    <%- include( "../_share/javascripts.ejs" ) %>
+
+</body>
+
+</html>

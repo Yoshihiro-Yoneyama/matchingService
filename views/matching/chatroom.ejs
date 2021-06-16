@@ -6,22 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>チャットルーム</title>
     <%- include("../_share/stylesheets.ejs") %>
-    <link rel="stylesheet" href="../../public/source/stylesheets/bmesse.css">
+    <link rel="stylesheet" href="../../public/source/stylesheets/bmesse.css" />
   </head>
   <body>
-    <%- include("../_share/navbar.ejs") %>
+    <div
+      style="
+        top: 0;
+        width: 100%;
+        position: fixed;
+        box-sizing: border-box;
+        height: 100px;
+      "
+    >
+      <%- include("../_share/navbar.ejs") %>
+    </div>
+
     <form>
-      <div class="ml-3 mt-1">login_user_id:<input type="text" id="login_user_id" value="<%= user_id %>"/></div>
-      <div class="ml-3">job_id:<input type="text" id="job_id" value="<%= job_id %>"/></div>
-      <div class="ml-3">room_id:<input type="text" id="room_id" value="<%= room_id %>"/></div>
-      <div class="ml-3">role_code:<input type="text" id="role_code" value="<%= role_code %>"/></div>
+      <div class="ml-3 mt-1" name="login_user_id:">
+        <input hidden type="text" id="login_user_id" value="<%= user_id %>" />
+      </div>
+      <div class="ml-3" name="job_id:">
+        <input type="text" id="job_id" value="<%= job_id %>" />
+      </div>
+      <div class="ml-3" name="room_id:">
+        <input type="text" id="room_id" value="<%= room_id %>" />
+      </div>
+      <div class="ml-3" name="role_code:">
+        <input type="text" id="role_code" value="<%= role_code %>" />
+      </div>
     </form>
 
     <div class="chat_container">
-      <div id="bms_messages_container">
-      <% for (var i = 0; i < msg.length; i++) { %>
-
-        <% if (msg[i].user_id == user_id) { %> 
+      <div class="scroll-block">
+        <div id="bms_messages_container">
+          <% for (var i = 0; i < msg.length; i++) { %> <% if (msg[i].user_id ==
+          user_id) { %>
           <div id="bms_messages">
             <div class="bms_message bms_right">
               <div class="bms_message_box">
@@ -31,9 +50,9 @@
               </div>
             </div>
           </div>
-          <div class="bms_clear"></div><!-- 回り込みを解除（スタイルはcssで充てる） -->
-      
-        <% } else { %> 
+          <div class="bms_clear"></div>
+
+          <% } else { %>
           <div id="bms_messages">
             <div class="bms_message bms_left">
               <div class="bms_message_box">
@@ -43,26 +62,34 @@
               </div>
             </div>
           </div>
-          <div class="bms_clear"></div><!-- 回り込みを解除（スタイルはcssで充てる） -->
-        <% } %>
-      <% } %>
+          <div class="bms_clear"></div>
 
-        <div id="messages"></div>
+          <% } %> <% } %>
 
-    </div>
+          <div id="messages"></div>
+          <div class="dummy"></div>
+        </div>
+      </div>
       <div id="bms_send">
         <form class="send">
           <textarea id="bms_send_message"></textarea>
           <button id="bms_send_btn">送信</button>
+          <div class="bms_clear"></div>
         </form>
       </div>
     </div>
-      <script src="/socket.io/socket.io.js"></script>
-      <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script> -->
-      <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-      <script src="/public/source/javascripts/chat/chat_ui.js">
-      </script>
+    <script src="/socket.io/socket.io.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script> -->
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="/public/source/javascripts/chat/chat_ui.js"></script>
 
-      <%- include( "../_share/javascripts.ejs" ) %>
+    <%- include( "../_share/javascripts.ejs" ) %>
   </body>
+  <script type="text/javascript">
+    /* 画面が表示されたらメッセージの最下部へ移動 */
+    $(() => {
+      $("html").scrollTop($("html")[0].scrollHeight);
+      $(".chat_container").scrollTop($(".chat_container")[0].scrollHeight);
+    });
+  </script>
 </html>

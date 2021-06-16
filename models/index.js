@@ -21,6 +21,9 @@ default_db.users = require("./user.model.js");
 //仕事情報モデル
 default_db.job = require("./job.model.js");
 
+//スキルシートモデル
+default_db.skillsheet = require("./skillsheet.model.js");
+
 //権限情報モデル
 default_db.privileges = require("./privileges.model.js");
 

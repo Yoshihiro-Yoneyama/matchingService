@@ -5,9 +5,27 @@
 
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
-        <li class="nav-item">
-          <a class="nav-link" href="/search">Search</a>
-        </li>
+        <!-- ログイン状態であるか否か -->
+        <% if (locals.user) { %>
+          <!-- クライアントでログイン -->
+          <% if (locals.user.role_code == "0003") { %>
+            <li class="nav-item">
+              <a class="nav-link" href="/search/skillsheet">Search</a>
+            </li>
+          <% } %> 
+          <!-- ワーカーでログイン -->
+          <% if (locals.user.role_code == "0002") { %>
+            <li class="nav-item">
+            <a class="nav-link" href="/search/job">Search</a>
+            </li>
+          <% } %> 
+        <!--  ログインしていない場合 -->
+        <% } else { %> 
+          <!-- 仕事情報を表示 -->
+          <li class="nav-item">
+            <a class="nav-link" href="/search/job">Search</a>
+            </li>
+        <% } %>
         <li class="nav-item">
           <a class="nav-link" href="/account">My page</a>
         </li>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>スキルシート変更確認</title>
+    <%- include("../../_share/stylesheets.ejs") %>
+    <!-- <link
+      rel="stylesheet"
+      href="/public/source/third_party/bootstrap/css/bootstrap.css"
+    /> -->
+    <link rel="stylesheet" href="/public/source/stylesheets/common.css"/>
+  </head>
+  <body>
+    <%- include("../../_share/navbar.ejs") %>
+    <main class="container">
+      <div class="border-bottom mt-5 mb-5">
+        <h1 class="mb-4">スキルシート変更確認</h1>
+        <form>
+          <div class="form-group row">
+            <label for="url" class="col-sm-2 col-form-label">URL:</label>
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext" id="url" name="url" value="<%= original.url %>"/>
+            </div>
+          </div>
+          <div class="form-group row">
+            <!---------- 経歴 ---------->
+            <label for="experience" class="col-sm-2 col-form-label">経歴</label>
+            <div class="col-sm-10">
+              <textarea
+                type="text"
+                readonly
+                class="form-control-plaintext"
+                id="experience"
+                name="experience"
+                rows="6"
+              ><%= original.experience %></textarea>
+            </div>
+          </div>
+          <!---------- スキル ---------->
+          <div class="form-group row">
+            <label for="skill" class="col-sm-2 col-form-label"
+              >スキル</label
+            >
+            <div class="col-sm-10">
+              <input type="text" readonly class="form-control-plaintext" id="skill" name="skill" value="<%= original.skill %>" />
+            </div>
+          </div>
+          <!---------- 希望勤務地 (DB参照に変える) ---------->
+          <div class="form-group row">
+            <label for="location" class="col-sm-2 col-form-label"
+              >希望勤務地</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                readonly
+                class="form-control-plaintext"
+                id="location"
+                name="location"
+                value="<%= original.location %>"
+              />
+            </div>
+          </div>
+          <!---------- 希望勤務形態 ---------->
+          <div class="form-group row">
+            <label for="work_style" class="col-sm-2 col-form-label"
+              >希望勤務形態</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                readonly
+                class="form-control-plaintext"
+                id="work_style"
+                name="work_style"
+                value="<%= original.work_style %>"
+              />
+            </div>
+          </div>
+          <!---------- 希望業種 ---------->
+          <div class="form-group row">
+            <label for="industry_types" class="col-sm-2 col-form-label"
+              >業種</label
+            >
+            <div class="col-sm-10">
+              <input
+                type="text"
+                readonly
+                class="form-control-plaintext"
+                id="industry_types"
+                name="industry_types"
+                value="<%= original.industry_types %>"
+              />
+            </div>
+          </div>
+          <!---------- 確認ボタン ---------->
+          <div class="form-group row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-1">
+              <input type="submit" class="btn btn-secondary" data-method="GET" data-action="/account/skills/regist" value="戻る" />
+            </div>
+          <div class="col-sm-1">
+            <input type="submit" class="btn btn-primary" data-method="POST" data-action="/account/skills/edit/execute" value="登録" />
+          </div>
+          
+        </form>
+      </div>
+    </main>
+    <%- include( "../../_share/javascripts.ejs" ) %>
+    <script src="/public/source/javascripts/account/posts/about_posts.js"></script>
+  </body>
+</html>

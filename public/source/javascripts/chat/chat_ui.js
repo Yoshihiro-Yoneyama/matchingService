@@ -53,6 +53,9 @@ $(() => {
         )
       );
     }
+    $("html").scrollTop($("html")[0].scrollHeight);
+    $(".chat_container").scrollTop($(".chat_container")[0].scrollHeight);
   });
+
 });
 

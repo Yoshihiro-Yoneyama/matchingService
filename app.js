@@ -68,6 +68,9 @@ app.use("/account/", require("./routes/account.js"));
 //postsディレクトリにリクエストを送信
 app.use("/posts/", require("./routes/posts.js"));
 
+//posts_skillディレクトリにリクエストを送信
+app.use("/posts_skill/", require("./routes/posts_skill.js"));
+
 //searchディレクトリにリクエストを送信
 app.use("/search/", require("./routes/search.js"));
 

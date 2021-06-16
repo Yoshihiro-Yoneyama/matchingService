@@ -7,6 +7,12 @@ const AutoIncrement = require("mongoose-sequence")(mongoose);
 //skillsheetコレクションのスキーマ定義
 //(MongoDBの"users"コレクションに格納するフィールドのデータ型を指定)
 const skillSchema = mongoose.Schema({
+  url: {
+    type: String,
+    trim: true,
+    unique: true,
+    required: true
+  },
   //ユーザーID
   user_id: {
     type: Number,
@@ -43,13 +49,13 @@ const skillSchema = mongoose.Schema({
     type: Date,
   },
   //発行日
-  published: {
+  createAt: {
     type: Date,
   },
 });
 
 //user_idフィールドを追加して、auto-incrementを付与
 skillSchema.plugin(AutoIncrement, { inc_field: "sheet_id" });
-let skillsheet = mongoose.model("job", skillSchema);
+let skillsheet = mongoose.model("skillsheet", skillSchema);
 
 module.exports = skillsheet;

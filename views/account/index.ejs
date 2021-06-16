@@ -21,13 +21,13 @@
           <% } %> 
 
           <% if (locals.user.role_code == "0002") { %>
-            <a class="nav-link" href="#">スキルシート登録へ</a>
+            <a class="nav-link" href="/account/skills/regist">スキルシート登録/編集</a>
           <% } else if (locals.user.role_code == "0003") { %> 
             <a class="nav-link" href="/account/posts/regist">仕事情報登録</a>
           <% } %> 
           
           <% if (locals.user.role_code == "0002") { %>
-            <a class="nav-link" href="#">スキルシート編集</a>
+            <!-- <a class="nav-link" href="#">スキルシート編集</a> -->
           <% } else if (locals.user.role_code == "0003") { %> 
             <a class="nav-link" href="/account/posts/edit/search">既存仕事情報編集/削除</a>
           <% } %> 
