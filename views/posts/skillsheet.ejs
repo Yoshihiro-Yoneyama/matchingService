@@ -32,21 +32,32 @@
         <dd class="col-9"><%= industry_types %></dd>
       </dl>
       <br/>
+
+      
+    <% if (errors) { %>
+      <div class="alert alert-danger">
+        <i class="fa fa-exclamation-circle fa-fw mr-2"></i><%= errors %>
+    </div>
+    <% } %>
+
+
       <!-- urlを非表示で画面に設置し、それをキーとしてDBに格納されている仕事情報を削除しに行く -->
 
 
       <% if (locals.user) { %>
         <p>ワーカーに提示する仕事内容を選択してください。</p>
+        
         <form method="POST" action="/job_matching/room" class="d-flex">
-          <input type="text" hidden  class="form-control-plaintext" id="url" name="url" value="<%= url %>"/>
+          <input type="text" hidden  class="form-control-plaintext" id="worker_id" name="worker_id" value="<%= user_id %>"/>
+          <input type="text" hidden  class="form-control-plaintext" id="job_id" name="job_id" value="<%= job_id %>"/>
+          <input type="text" hidden  class="form-control-plaintext" id="sheet_id" name="sheet_id" value="<%= sheet_id %>"/>
           <select class="col-2" name="job" id="job">
             <option value="">
             <% for ( let i = 0; i < title.length; i++ ) { %>
-              <option value="<%= title[i] %>"><%= title[i] %></option>
+              <option value="<%= job_id[i] %>"><%= title[i] %></option>
             <% } %> 
           </select>
           <span class="col-1"></span>
-
           <input class="btn btn-primary col-1" type="submit" value="スカウト"/>
       </form>
       <% } %>

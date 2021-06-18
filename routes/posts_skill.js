@@ -26,7 +26,7 @@ router.get("/*", (req, res) => {
       .then((doc) => {
         job.find({ user_id: req.user.user_id })
           .then((job) => {
-
+            doc.errors="";
             doc.job_id = [];
             doc.title = [];
             for (let i = 0; i < job.length; i++) {

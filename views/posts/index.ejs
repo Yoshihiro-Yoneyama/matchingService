@@ -35,11 +35,11 @@
       </dl>
 
       <!-- urlを非表示で画面に設置し、それをキーとしてDBに格納されている仕事情報を削除しに行く -->
-
-
       <% if (locals.user) { %>
         <form method="POST" action="/job_matching/room" class="d-flex">
-          <input type="text" hidden  class="form-control-plaintext" id="url" name="url" value="<%= url %>"/>
+          <!-- サーバーで取得用にjob_ideを配置 -->
+          <input type="text" hidden  class="form-control-plaintext" id="worker_id" name="worker_id" value=" <%= locals.user.user_id %>"/>
+          <input type="text" hidden  class="form-control-plaintext" id="job_id" name="job_id" value="<%= job_id %>"/>
           <input class="btn btn-primary" type="submit" value="応募"/>
       </form>
       <% } %>
