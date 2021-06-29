@@ -13,8 +13,15 @@ const msgSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    user_id: {
+    user_id_sender: {
       type: Number,
+    },
+    user_receiver: {
+      user_id: Number,
+      readFlg: {
+        type: Boolean,
+        default: false,
+      }
     },
     room_id: {
       type: Number,

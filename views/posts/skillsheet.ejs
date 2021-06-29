@@ -33,7 +33,6 @@
       </dl>
       <br/>
 
-      
     <% if (errors) { %>
       <div class="alert alert-danger">
         <i class="fa fa-exclamation-circle fa-fw mr-2"></i><%= errors %>
@@ -48,10 +47,10 @@
         <p>ワーカーに提示する仕事内容を選択してください。</p>
         
         <form method="POST" action="/job_matching/room" class="d-flex">
-          <input type="text" hidden  class="form-control-plaintext" id="worker_id" name="worker_id" value="<%= user_id %>"/>
-          <input type="text" hidden  class="form-control-plaintext" id="job_id" name="job_id" value="<%= job_id %>"/>
-          <input type="text" hidden  class="form-control-plaintext" id="sheet_id" name="sheet_id" value="<%= sheet_id %>"/>
-          <select class="col-2" name="job" id="job">
+          worker_id: <input type="text"   class="form-control-plaintext" id="worker_id" name="worker_id" value="<%= user_id %>"/>
+          job_id: <input type="text"   class="form-control-plaintext"  value="<%= job_id %>"/>
+          sheet_id: <input type="text"   class="form-control-plaintext" id="sheet_id" name="sheet_id" value="<%= sheet_id %>"/>
+          <select class="col-2" name="job_id" id="job_id">
             <option value="">
             <% for ( let i = 0; i < title.length; i++ ) { %>
               <option value="<%= job_id[i] %>"><%= title[i] %></option>

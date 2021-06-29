@@ -13,7 +13,7 @@ $(() => {
     //入力されたメッセージ
     data.msg = $("#bms_send_message").val();
     //ログインユーザーのユーザーID
-    data.user_id = $("#login_user_id").val();
+    data.user_id_sender = $("#login_user_id").val();
     //ルームID
     data.room_id = $("#room_id").val();
     data.role_code = $("#role_code").val();
@@ -26,29 +26,30 @@ $(() => {
     return false;
   });
 
-  //Socket.on("イベント名", data)： データの受信
-  //サーバーから送信されたメッセージを受信し、msgに格納
-  socket.on("new message", (data) => {
+  //Socket.on("イベント名", sendmsg)： データの受信
+  //サーバーから送信されたメッセージを受信し、画面で表示(id=messages)
+  socket.on("new message", (sendmsg) => {
     
     //ログインユーザーIDの取得
     var user_id = $("#login_user_id").val();
     //id=messagesのタグにmsgに格納されたデータを表示
-
-    //ログインユーザーIDとメッセージ送信者のユーザーIDが一致すれば左に表示
-    if (data.user_id == user_id) {
+    
+    //ログインユーザーIDとメッセージ送信者のユーザーIDが一致すれば右に表示
+    if (sendmsg.user_id_sender == user_id) {
       $("#messages").append(
         $(
-          "<div id='bms_messages'><div class='bms_message bms_right'><div class='bms_message_box'><div class='bms_message_content'><div class='bms_message_text'>" +
-            data.msg +
-            "</div></div></div></div></div><div class='bms_clear'></div>"
+          "<div id='bms_messages'><div class='bms_message bms_right'><div class='bms_message_box'><div class='bms_message_content'><div class='bms_message_text'>" 
+            + sendmsg.msg
+            +"</div></div></div></div></div><div class='bms_clear'></div>"
         )
       );
-    //一致しなければ右に表示
+    //一致しなければ左に表示
+    //※右についている未読の文字を全て既読に変更
     } else {
       $("#messages").append(
         $(
           "<div id='bms_messages'><div class='bms_message bms_left'><div class='bms_message_box'><div class='bms_message_content'><div class='bms_message_text'>" +
-            data.msg +
+            sendmsg.msg +
             "</div></div></div></div></div><div class='bms_clear'></div>"
         )
       );

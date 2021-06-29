@@ -8,7 +8,16 @@ const AutoIncrement = require("mongoose-sequence")(mongoose);
 //(MongoDBの"users"コレクションに格納するフィールドのデータ型を指定)
 const chatroomSchema = mongoose.Schema(
   {
-    user_id: [String],
+    /* user_id: [String], */
+    users: [{
+      user_id: String,
+      status: {
+        type: String,
+        enum: [ "Pending", "Active" ],
+        default: "Pending",
+      }
+    }],
+    /* user_id : [{user_id: String, status: Boolean}], */
     job_id: {
       type: String,
     },

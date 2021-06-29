@@ -5,7 +5,7 @@
 
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
       <ul class="navbar-nav me-auto mb-2 mb-md-0">
-        <!-- ログイン状態であるか否か -->
+        <!-- Searchボタンのログイン状態であるか否か -->
         <% if (locals.user) { %>
           <!-- クライアントでログイン -->
           <% if (locals.user.role_code == "0003") { %>
@@ -26,32 +26,38 @@
             <a class="nav-link" href="/search/job">Search</a>
             </li>
         <% } %>
-        <li class="nav-item">
-          <a class="nav-link" href="/account">My page</a>
-        </li>
       </ul>
+      <% if (locals.user) { %>
+
+        <form method="GET" action="/job_matching/job_list" class="d-flex">
+          <button class="btn btn-outline-success" type="submit">チャットルーム一覧</button>
+        </form>
+      <% } %>
+      <!-- ログインの有無でログイン画面表示orマイページとログアウト -->
       <!-- locals.userはサーバーから受け取ったユーザーのログイン情報 -->
       <% if (locals.user) { %>
-        <form method="GET" action="/account" class="d-flex">
+        <form method="GET" action="/account" class="d-flex ml-1">
           <button class="btn btn-outline-success" type="submit">ようこそ<%= locals.user.username %>様</button>
         </form>
         <form method="POST" action="/account/logout" class="d-flex ml-1">
         <button class="btn btn-outline-success" type="submit">ログアウト</button>
       </form>
       
+      <!-- ログイン状態でなかったらログインボタン -->
       <% } else { %>
         <form method="GET" action="/account" class="d-flex">
           <button class="btn btn-outline-success" type="submit">ログイン</button>
         </form>
-        <% } %>
-        <div class="ml-1">
-          <% if (!locals.user) { %>
-            <form method="GET" action="/account/regist/account-form" class="d-flex">
-              <button class="btn btn-outline-success" type="submit">新規登録</button>
-            </form>
-          <% } %>
-          
-        </div>
+      <% } %>
+      <div class="ml-1">
+      
+        <!-- ログイン状態でなかったら新規登録を表示 -->
+      <% if (!locals.user) { %>
+        <form method="GET" action="/account/regist/account-form" class="d-flex">
+          <button class="btn btn-outline-success" type="submit">新規登録</button>
+        </form>
+      <% } %>  
+      </div>
     </div>
   </div>
 </nav>

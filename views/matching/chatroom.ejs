@@ -20,27 +20,31 @@
     >
       <%- include("../_share/navbar.ejs") %>
     </div>
+    <input type="text">
+    <p>test</p>
 
-    <form>
-      <div class="ml-3 mt-1" name="login_user_id:">
-        <input hidden type="text" id="login_user_id" value="<%= user_id %>" />
+    <form class="mt-9">
+
+      <div class="ml-3 mt-9" name="login_user_id">
+        <input hidden type="text" id="login_user_id" value="<%= user_id %>" />login_user_id: <%= user_id %>
       </div>
-      <div class="ml-3" name="job_id:">
-        <input type="text" id="job_id" value="<%= job_id %>" />
+      <div class="ml-3 mt-9" name="job_id">
+        <input hidden type="text" id="job_id" value="<%= job_id %>"/>job_id: <%= job_id %>
       </div>
-      <div class="ml-3" name="room_id:">
-        <input type="text" id="room_id" value="<%= room_id %>" />
+      <div class="ml-3" name="room_id">
+        <input hidden type="text" id="room_id" value="<%= room_id %>"/>room_id: <%= room_id %>
       </div>
-      <div class="ml-3" name="role_code:">
-        <input type="text" id="role_code" value="<%= role_code %>" />
+      <div class="ml-3" name="role_code">
+        <input hidden type="text" id="role_code" value="<%= role_code %>"/>login_user_role: <%= role_code %>>
       </div>
     </form>
 
     <div class="chat_container">
       <div class="scroll-block">
         <div id="bms_messages_container">
-          <% for (var i = 0; i < msg.length; i++) { %> <% if (msg[i].user_id ==
-          user_id) { %>
+          <% for (var i = 0; i < msg.length; i++) { %> 
+          <!-- 発信メッセージは右側に表示 -->
+          <% if (msg[i].user_id_sender == user_id) { %>
           <div id="bms_messages">
             <div class="bms_message bms_right">
               <div class="bms_message_box">
@@ -50,6 +54,11 @@
               </div>
             </div>
           </div>
+          <% if (msg[i].user_receiver.readFlg == false) { %> 
+            未読
+          <% } else { %> 
+            既読
+          <% } %>
           <div class="bms_clear"></div>
 
           <% } else { %>

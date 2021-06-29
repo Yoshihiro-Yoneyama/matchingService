@@ -38,8 +38,15 @@
       <% if (locals.user) { %>
         <form method="POST" action="/job_matching/room" class="d-flex">
           <!-- サーバーで取得用にjob_ideを配置 -->
-          <input type="text" hidden  class="form-control-plaintext" id="worker_id" name="worker_id" value=" <%= locals.user.user_id %>"/>
-          <input type="text" hidden  class="form-control-plaintext" id="job_id" name="job_id" value="<%= job_id %>"/>
+          <div>
+            worker_id:<input type="text"   class="form-control-plaintext" id="worker_id" name="worker_id" value="<%= locals.user.user_id %>" />
+          </div>
+          <div>
+            job_id:<input type="text"   class="form-control-plaintext" id="job_id" name="job_id" value="<%= job_id %>"/>
+          </div>
+          <div>
+            user_id:<input type="text"   class="form-control-plaintext" id="client_id" name="client_id" value="<%= user_id %>"/>
+          </div>
           <input class="btn btn-primary" type="submit" value="応募"/>
       </form>
       <% } %>

@@ -16,8 +16,8 @@
         <!-- list:search.jsから送られてきた仕事情報
           item: listに格納されている情報を随時格納 -->
         <!-- for...ofのループ処理がなされているgetJob job_test -->
-        <% for ( var i = 0; i < test2.length; i++ ) { %> 
-          <%- include("./job_list_item.ejs",test2[i] ) %>
+        <% for ( var i = 0; i < doc.length; i++ ) { %> 
+          <%- include("./job_list_item.ejs",doc[i] ) %>
         <% }%>
       </div>
     </main>
