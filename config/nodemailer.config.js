@@ -11,6 +11,7 @@ const transport = nodemailer.createTransport({
   port: 465,
   secure: true,
   //送信者のメールアカウント情報を設定
+  //auth.configより取得
   auth: {
     user: user,
     pass: pass,

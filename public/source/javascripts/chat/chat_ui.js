@@ -29,11 +29,11 @@ $(() => {
   //Socket.on("イベント名", sendmsg)： データの受信
   //サーバーから送信されたメッセージを受信し、画面で表示(id=messages)
   socket.on("new message", (sendmsg) => {
-    
+
     //ログインユーザーIDの取得
     var user_id = $("#login_user_id").val();
     //id=messagesのタグにmsgに格納されたデータを表示
-    
+
     //ログインユーザーIDとメッセージ送信者のユーザーIDが一致すれば右に表示
     if (sendmsg.user_id_sender == user_id) {
       $("#messages").append(

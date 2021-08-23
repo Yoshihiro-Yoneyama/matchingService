@@ -1,14 +1,12 @@
 const mongoose = require("mongoose");
 mongoose.Promise = global.Promise;
 
-//mongodbのポートの読み込みと、mongoDBのコレクション名(user-api)をつける
+//mongodbのポートの読み込みと、mongoDBのコレクション名(testdb)をつける
 /**
- *テストアカウントのためMongoDBを以下の設定にしています。
- *アカウント名：user
- *パスワード：user
+ *リリ―スではアカウント名とパスワードの設定が必要
  *
  */
-mongoose.connect("mongodb://user:user@localhost:27017/testdb", {
+mongoose.connect("mongodb://localhost:27017/testdb", {
   useCreateIndex: true,
   useNewUrlParser: true,
   useUnifiedTopology: true,

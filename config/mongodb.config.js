@@ -1,7 +1,7 @@
-//mongodbと接続する前にコマンドプロンプトからDBのユーザー登録を行っておく
+//リリース段階ではMongoDBのユーザーIDとパスワードを設定しておく
 module.exports = {
   //mongoDBのアクセスURL
-  CONNECTION_URL: "mongodb://user:user@localhost:27017/testdb",
+  CONNECTION_URL: "mongodb://localhost:27017/testdb",
   //アクセスするDB
   DATABASE:"testdb",
   OPTIONS:{
